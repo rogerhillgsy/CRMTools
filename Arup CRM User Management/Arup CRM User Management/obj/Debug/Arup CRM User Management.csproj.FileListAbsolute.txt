@@ -1,0 +1,20 @@
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Arup CRM User Management.exe.config
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\obj\Debug\Arup CRM User Management.csprojResolveAssemblyReference.cache
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Arup CRM User Management.exe.manifest
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Arup CRM User Management.application
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Arup CRM User Management.exe
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Arup CRM User Management.pdb
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\AntiXSSLibrary.dll
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Microsoft.Crm.Sdk.Proxy.dll
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Microsoft.IdentityModel.dll
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Microsoft.Xrm.Client.CodeGeneration.dll
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Microsoft.Xrm.Client.dll
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Microsoft.Xrm.Portal.dll
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Microsoft.Xrm.Portal.Files.dll
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Microsoft.Xrm.Sdk.Deployment.dll
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Microsoft.Xrm.Sdk.dll
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\bin\Debug\Microsoft.Xrm.Sdk.Deployment.xml
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\obj\Debug\Arup CRM User Management.exe.manifest
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\obj\Debug\Arup CRM User Management.application
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\obj\Debug\Arup CRM User Management.exe
+C:\Sreenath\Source Code\My WorkSpace\Arup CRM User Management1\Arup CRM User Management\Arup CRM User Management\obj\Debug\Arup CRM User Management.pdb
