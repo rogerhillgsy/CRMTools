@@ -27,8 +27,10 @@ namespace Opportunity
                 Console.WriteLine("Start time:" + DateTime.Now);
                 linesInFailedFile = new List<string>();
                 linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
+                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "Start time:" + DateTime.Now, "", "", ""));
                 IOrganizationService service = CreateService("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
                 UpdateOpportunity(service);
+                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "End time:" + DateTime.Now, "", "", ""));
             }
             catch (Exception ex)
             {
