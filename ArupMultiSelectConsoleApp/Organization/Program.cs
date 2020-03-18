@@ -14,12 +14,19 @@ using System.Web;
 using System.IO;
 using System.Data;
 using Microsoft.Xrm.Sdk.Query;
+using System.Configuration;
+using System.Collections.Specialized;
 
 namespace Organization
 {
     class Program
     {
         static List<string> linesInFailedFile = null;
+        static string fileName = "FailedRecordsFile" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".csv";
+        static int StartPageNumber = 0;
+        static int EndPageNumber = 0;
+        static int RecordCountPerPage = 0;
+
         static void Main(string[] args)
         {
             try
@@ -27,10 +34,17 @@ namespace Organization
                 Console.WriteLine("Start time:" + DateTime.Now);
                 linesInFailedFile = new List<string>();
                 linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
-                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "Start time:" + DateTime.Now, "", "", ""));
-                IOrganizationService service = CreateService("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
+                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "Start Time : " + DateTime.Now, "", "", ""));
+                string serverUrl = ConfigurationManager.AppSettings["serverUrl"].ToString();
+                string userName = ConfigurationManager.AppSettings["UserName"].ToString();
+                string password = ConfigurationManager.AppSettings["Password"].ToString();
+                string domain = ConfigurationManager.AppSettings["Domain"].ToString();
+                StartPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["StartPageNumber"]);
+                EndPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["EndPageNumber"]);
+                RecordCountPerPage = Convert.ToInt32(ConfigurationManager.AppSettings["RecordCountPerPage"]);
+                IOrganizationService service = CreateService(serverUrl, userName, password, domain);
+                //IOrganizationService service = CreateService("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
                 UpdateOrganization(service);
-                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "End time:" + DateTime.Now, "", "", ""));
             }
             catch (Exception ex)
             {
@@ -39,7 +53,7 @@ namespace Organization
             }
             finally
             {
-                System.IO.File.WriteAllLines("FailedRecordsFile" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".csv", linesInFailedFile);
+                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
             }
         }
 
@@ -101,8 +115,8 @@ namespace Organization
             query.Criteria.AddCondition("ccrm_servicesdisciplinesvalue", ConditionOperator.NotNull);
             query.Criteria.AddCondition("ccrm_clientsectorvalue", ConditionOperator.NotNull);
             query.PageInfo = new PagingInfo();
-            query.PageInfo.Count = 5;
-            query.PageInfo.PageNumber = 1;
+            query.PageInfo.Count = RecordCountPerPage;
+            query.PageInfo.PageNumber = StartPageNumber;
             query.PageInfo.ReturnTotalRecordCount = true;
             EntityCollection entityCollection = service.RetrieveMultiple(query);
             EntityCollection final = new EntityCollection();
@@ -117,7 +131,7 @@ namespace Organization
             }
             do
             {
-                Console.WriteLine(query.PageInfo.PageNumber * 5 + " Organization Records processed at : " + DateTime.Now);
+
                 query.PageInfo.PageNumber += 1;
                 query.PageInfo.PagingCookie = entityCollection.PagingCookie;
                 entityCollection = service.RetrieveMultiple(query);
@@ -130,9 +144,13 @@ namespace Organization
                     i.GetAttributeValue<string>("ccrm_servicesdisciplinesvalue"),
                     i.GetAttributeValue<string>("ccrm_clientsectorvalue"));
                 }
+                Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + " Organization Records processed at : " + DateTime.Now);
+                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+                if (query.PageInfo.PageNumber == EndPageNumber)
+                    break;
             }
             while (entityCollection.MoreRecords);
-            Console.WriteLine("Total Organization record count:" + final.TotalRecordCount);
+            Console.WriteLine("Total Organization record count:" + RecordCountPerPage * EndPageNumber);
             Console.WriteLine("End time:" + DateTime.Now);
             Console.ReadKey();
         }
@@ -145,33 +163,54 @@ namespace Organization
                 Entity organization = new Entity("account");
                 if (smallbusinessminoritystatusvalue != string.Empty && smallbusinessminoritystatusvalue != null)
                 {
+                    Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "account", "ccrm_smallbusinessminoritystatuspicklist");
                     OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
                     string[] arr = smallbusinessminoritystatusvalue.Split(',');
                     foreach (var item in arr)
                     {
-                        collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
+                        if (item != null && item.Trim() != string.Empty && item.Trim() != "")
+                        {
+                            if (opset.ContainsKey(Convert.ToInt32(item)))
+                            {
+                                collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
+                            }
+                        }
                     }
 
                     organization["arup_smallbusiness"] = collectionOptionSetValues;
                 }
                 if (servicesdisciplinesvalue != string.Empty && servicesdisciplinesvalue != null)
                 {
+                    Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "account", "ccrm_servicesdisciplinespicklist");
                     OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
                     string[] arr = servicesdisciplinesvalue.Split(',');
                     foreach (var item in arr)
                     {
-                        collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
+                        if (item != null && item.Trim() != string.Empty && item.Trim() != "")
+                        {
+                            if (opset.ContainsKey(Convert.ToInt32(item)))
+                            {
+                                collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
+                            }
+                        }
                     }
 
                     organization["arup_services"] = collectionOptionSetValues;
                 }
                 if (clientsectorvalue != string.Empty && clientsectorvalue != null)
                 {
+                    Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "account", "ccrm_clientsector");
                     OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
                     string[] arr = clientsectorvalue.Split(',');
                     foreach (var item in arr)
                     {
-                        collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
+                        if (item != null && item.Trim() != string.Empty && item.Trim() != "")
+                        {
+                            if (opset.ContainsKey(Convert.ToInt32(item)))
+                            {
+                                collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
+                            }
+                        }
                     }
 
                     organization["arup_clientsector"] = collectionOptionSetValues;
@@ -190,5 +229,51 @@ namespace Organization
             }
         }
         #endregion
+
+        public static Dictionary<Nullable<Int32>, string> RetriveOptionSetLabels(IOrganizationService service, string entityLogicalName, string optionSetLogicalName)
+        {
+
+            //var attributeRequest = new RetrieveAttributeRequest
+            //{
+            //    EntityLogicalName = entityLogicalName,
+            //    LogicalName = optionSetLogicalName,
+            //    RetrieveAsIfPublished = true
+            //};
+
+            //var attributeResponse = (RetrieveAttributeResponse)service.Execute(attributeRequest);
+            //var attributeMetadata = (EnumAttributeMetadata)attributeResponse.AttributeMetadata;
+
+            //var optionList = (from o in attributeMetadata.OptionSet.Options
+            //                  select new { Value = o.Value, Text = o.Label.UserLocalizedLabel.Label }).ToList();
+
+
+            Dictionary<Nullable<Int32>, string> dic = new Dictionary<int?, string>();
+            string EntityLogicalName = entityLogicalName;
+            string FieldLogicalName = optionSetLogicalName;
+
+            string FetchXml = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false' >";
+            FetchXml = FetchXml + "<entity name='stringmap' >";
+            FetchXml = FetchXml + "<attribute name='attributevalue' />";
+            FetchXml = FetchXml + "<attribute name='value' />";
+            FetchXml = FetchXml + "<filter type='and' >";
+            FetchXml = FetchXml + "<condition attribute='objecttypecodename' operator='eq' value='" + EntityLogicalName + "' />";
+            FetchXml = FetchXml + "<condition attribute='attributename' operator='eq' value='" + FieldLogicalName + "' />";
+            FetchXml = FetchXml + "</filter></entity></fetch>";
+
+            FetchExpression FetchXmlQuery = new FetchExpression(FetchXml);
+
+            EntityCollection FetchXmlResult = service.RetrieveMultiple(FetchXmlQuery);
+
+            if (FetchXmlResult.Entities.Count > 0)
+            {
+                foreach (Entity Stringmap in FetchXmlResult.Entities)
+                {
+                    string OptionValue = Stringmap.Attributes.Contains("value") ? (string)Stringmap.Attributes["value"] : string.Empty;
+                    Int32 OptionLabel = Stringmap.Attributes.Contains("attributevalue") ? (Int32)Stringmap.Attributes["attributevalue"] : 0;
+                    dic.Add(OptionLabel, OptionValue);
+                }
+            }
+            return dic;
+        }
     }
 }
