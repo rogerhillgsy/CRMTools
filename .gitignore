@@ -35,7 +35,7 @@ bld/
 [Ll]og/
 
 # Do not ignoe CRM SDK bin directory
-!CRM\ SDK/bin/
+!CRM\ SDK/[Bb]in/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
