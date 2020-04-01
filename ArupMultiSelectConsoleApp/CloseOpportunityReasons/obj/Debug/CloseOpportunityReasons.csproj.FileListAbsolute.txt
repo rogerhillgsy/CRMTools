@@ -1,9 +1,0 @@
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CloseOpportunityReasons\bin\Debug\CloseOpportunityReasons.exe.config
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CloseOpportunityReasons\bin\Debug\CloseOpportunityReasons.exe
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CloseOpportunityReasons\bin\Debug\CloseOpportunityReasons.pdb
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CloseOpportunityReasons\bin\Debug\Microsoft.Crm.Sdk.Proxy.dll
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CloseOpportunityReasons\bin\Debug\Microsoft.Xrm.Sdk.dll
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CloseOpportunityReasons\obj\Debug\CloseOpportunityReasons.csproj.CoreCompileInputs.cache
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CloseOpportunityReasons\obj\Debug\CloseOpportunityReasons.csproj.CopyComplete
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CloseOpportunityReasons\obj\Debug\CloseOpportunityReasons.exe
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CloseOpportunityReasons\obj\Debug\CloseOpportunityReasons.pdb
