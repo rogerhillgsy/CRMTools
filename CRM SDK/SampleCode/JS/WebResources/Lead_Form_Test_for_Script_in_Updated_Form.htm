@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Lead Form Test for Script in Updated Form</title>
+ <script type="text/javascript">
+  var now = null;
+  var attempts = 0;
+  document.onreadystatechange = function () {
+   if (document.readyState == "complete") {
+    now = new Date();
+    writeMessage("document ready at " + now.getTime());
+    check();
+   }
+  }
+
+  function isFunctionReady() {
+   var ready = false;
+   try {
+    ready = (typeof parent.Xrm.Page.data.entity.attributes.get("subject").getValue == "function");
+   }
+   catch (e) { 
+   //error expected
+   }
+   return ready;
+  }
+
+  function check() {
+   if (attempts > 20) {
+    writeMessage("20 unsuccessfull attempts. Cancelling script");
+    return;
+   }
+   if (isFunctionReady()) {
+    start();
+   }
+   else {
+    now = new Date();
+    writeMessage("parent.Xrm.Page.data.entity.attributes.get(\"subject\").getValue not yet available at: " + now.getTime());
+    attempts++;
+   setTimeout(check, 50);
+   }
+  }
+
+  function start() {
+   now = new Date();
+   var topic;
+   writeMessage("parent.Xrm.Page.data.entity.attributes.get(\"subject\").getValue function is available at: " + now.getTime());
+   try {
+    topic = parent.Xrm.Page.data.entity.attributes.get("subject").getValue();
+   }
+   catch (e) {
+    writeMessage("Failed to capture Topic value. Error: "+e.message);
+   }
+   //success
+   writeMessage("Lead Topic value: " + topic);  
+  }
+
+  //Helper function to write data to this page:
+  function writeMessage(message)
+  {
+   var ol = document.getElementById("results");
+   var li = document.createElement("li");
+   if (typeof li.innerText != "undefined") {
+   //For IE8 or lower
+    li.innerText = message;
+   }
+   else {
+    li.textContent = message;
+   }
+   
+   ol.appendChild(li);
+  }
+
+ </script>
+</head>
+<body>
+<ol id="results"></ol>
+</body>
+</html>
+
+

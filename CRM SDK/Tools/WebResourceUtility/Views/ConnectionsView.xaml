@@ -1,0 +1,97 @@
+﻿<UserControl
+	x:Class="Microsoft.Crm.Sdk.Samples.ConnectionsView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+	mc:Ignorable="d" 		
+    >	
+	<Border CornerRadius="8,8,8,8" Background="LightGray" >
+        <Grid Margin="10" >
+            <Grid.RowDefinitions>
+	    		<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />	
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />									
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition/>
+				
+			</Grid.ColumnDefinitions>
+			<TextBlock Text="Connect to an existing Connection or create a new one."
+				Grid.ColumnSpan="3" 
+				FontWeight="Bold" 
+				FontSize="18.667" 
+				FontFamily="/WebResourceUtility;component/Fonts/#Arial" >
+			</TextBlock>
+		
+		    <TextBlock Grid.Row="1" 
+			    Text="Connections" 
+			    FontWeight="Bold" 
+			    Margin="0,10,0,0"  />
+		<ListBox
+			HorizontalAlignment="Left"
+			MinHeight="140"
+			Width="220"
+			Grid.Row="2"
+			x:Name="ConfigurationsListBox"
+			ItemsSource="{Binding Configurations}"
+			SelectedItem="{Binding SelectedConfiguration, Mode=TwoWay}" 
+			Height="140">                   
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="{Binding Attribute[name].Value}" />
+					</StackPanel>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+		<Grid Grid.Row="2" 
+			Grid.Column="1" 			 
+			Margin="4" 
+			DataContext="{Binding Path=SelectedConfiguration}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Margin="4" Text="Name:" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="1" Margin="4" Text="Server:" VerticalAlignment="Center" />
+			<TextBlock Grid.Row="2" Margin="4" Text="Organization:" VerticalAlignment="Center" />
+			<TextBlock Grid.Row="3" Margin="4" Text="Username:" VerticalAlignment="Center"/>
+			<TextBlock Grid.Row="4" Margin="4" Text="Domain:" VerticalAlignment="Center"/>
+
+            <TextBox Grid.Row="0" Grid.Column="1" Margin="4" 
+			    Text="{Binding Path=Attribute[name].Value, Mode=TwoWay}" />
+
+            <TextBox Grid.Row="1" Grid.Column="1" Margin="4" 
+				Text="{Binding Path=Attribute[server].Value, Mode=TwoWay}" />
+			
+			<TextBox Grid.Row="2" Grid.Column="1" Margin="4" 
+				Text="{Binding Path=Attribute[orgName].Value, Mode=TwoWay}" />
+			
+			<TextBox Grid.Row="3" Grid.Column="1" Margin="4" 
+				Text="{Binding Path=Attribute[userName].Value, Mode=TwoWay}" />				
+			
+			<TextBox Grid.Row="4" Grid.Column="1" Margin="4" 
+				Text="{Binding Path=Attribute[domain].Value, Mode=TwoWay}" />
+		</Grid>
+
+		<UniformGrid Margin="0,4,0,4" Grid.Row="3" Grid.ColumnSpan="2" Rows="1" >
+        	<Button Content="Connect!" Margin="2" Command="{Binding Path=ActivateConnectionCommand}"  />
+            <Button Content="New" Margin="2" Command="{Binding Path=CreateNewConnectionCommand}" /> 
+            <Button Content="Save Connections" Margin="2" Command="{Binding Path=SaveConnectionsCommand}" />
+            <Button Content="Delete Connection" Margin="2" Command="{Binding Path=DeleteConnectionCommand}" />
+		</UniformGrid>
+		</Grid>		
+	</Border>
+	
+</UserControl>

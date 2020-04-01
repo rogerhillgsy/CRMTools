@@ -1,0 +1,25 @@
+﻿SERVICE REFERENCES
+Add the following service references, using your server name:
+
+1) Example URL: http://myserver/XRMServices/2011/Discovery.svc
+   Namespace: CrmSdk.Discovery
+2) Example URL: http://myserver/XRMServices/2011/Organization.svc
+   Namespace: CrmSdk
+
+If you don't know the URL for the services, do the following:
+1) Launch the CRM Application in Internet Explorer
+2) Navigate to Settings -> Customizations
+3) Click Developer Resources
+4) Note down the URL for the Discovery Service and the Organization Service.
+
+CODE CHANGES
+1) Open Program.cs and update the UserDomain, UserName, UserPassword, DiscoveryServiceUrl, 
+   and OrganizationUniqueName constants.
+   NOTE: These values are only required in order to make the sample work.
+
+BUILD and RUN
+1) Right click on the AD project and choose Build.
+	(Warnings are expected and can be ignored.)
+2) Place a breakpoint after the WhoAmI call.
+3) Right click on the AD project and choose Debug.
+

@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<!--<snippetJavaScriptRESTRetrieveMultipleHTML>-->
+<html lang="en-us">
+<head>
+ <title>REST Endpoint Paging with JScript</title>
+ <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+ <script src="../ClientGlobalContext.js.aspx" type="text/javascript"></script>
+ <script src="Scripts/SDK.REST.js" type="text/javascript"></script>
+ <link href="Styles/JavaScriptRESTRetrieveMultiple.css" rel="stylesheet" type="text/css" />
+ <script type="text/javascript">
+  var accountsGrid; //The tbody element of the accountsTable
+  var numberOfAccountsToRetrieve; // The select control with options for the number of records to retrieve.
+  var btnRetrieveAccounts; //The button to retrieve accounts
+  var accountsRetrieved; //The span displaying the number of account records retrieved.
+  var successMessage; // The message displayed when records are returned.
+  var totalAccountCount = 0;
+  document.onreadystatechange = function () {
+   if (document.readyState == "complete") {
+    btnRetrieveAccounts = document.getElementById("btnRetrieveAccounts");
+    accountsGrid = document.getElementById("accountsGrid");
+    numberOfAccountsToRetrieve = document.getElementById("numberOfAccountsToRetrieve");
+    accountsRetrieved = document.getElementById("accountsRetrieved");
+    successMessage = document.getElementById("successMessage");
+    btnRetrieveAccounts.onclick = retrieveAccounts;
+    btnRetrieveAccounts.click();
+   }
+  }
+  function retrieveAccounts() {
+   ///<summary>
+   /// Retrieves accounts by passing a filter to the SDK.RestEndpointPaging.RetrieveRecords function
+   ///</summary>
+   clearaccountsGrid();
+   var number = parseInt(numberOfAccountsToRetrieve.options[numberOfAccountsToRetrieve.selectedIndex].value, 10);
+   var options = "$select=Name,Telephone1&$top=" + number;
+   //The retrieveAccountsCallBack function is passed through as the successCallBack.
+   SDK.REST.retrieveMultipleRecords("Account", options, retrieveAccountsCallBack, function (error) { alert(error.message); }, accountsRetrieveComplete);
+  }
+  function retrieveAccountsCallBack(retrievedAccounts) {
+   ///<summary>
+   /// This function is passed through the request and is iterated for each page of data
+   /// This function appends rows to the accountsGrid.
+   ///</summary>
+   totalAccountCount = totalAccountCount + retrievedAccounts.length;
+   for (var i = 0; i < retrievedAccounts.length; i++) {
+    var account = retrievedAccounts[i];
+    var row = document.createElement("tr");
+    var nameCell = document.createElement("td");
+    setElementText(nameCell, account.Name);
+    row.appendChild(nameCell);
+    var mainPhoneCell = document.createElement("td");
+    setElementText(mainPhoneCell, (account.Telephone1 == null) ? "" : account.Telephone1);
+    mainPhoneCell.className = "rightColumn";
+    row.appendChild(mainPhoneCell);
+    accountsGrid.appendChild(row);
+   }
+  }
+  function accountsRetrieveComplete() {
+   ///<summary>
+   /// This function is called after all the records have been returned to update the actual total number of records.
+   ///</summary>
+   accountsRetrieved.innerText = totalAccountCount;
+   successMessage.style.display = "block";
+  }
+  function clearaccountsGrid() {
+   ///<summary>
+   /// This function initializes the totalAccountCount and  clears all the rows from the accountsGrid
+   /// in preparation for adding a new set of rows.
+   ///</summary>
+   successMessage.style.display = "none";
+   totalAccountCount = 0;
+   for (var i = accountsGrid.rows.length - 1; i >= 0; i--) {
+    accountsGrid.deleteRow(i);
+   }
+  }
+  function setElementText(element, text) {
+   ///<summary>
+   /// This function mitigates the fact that IE uses innerText and other browsers use textContent.
+   ///</summary>
+   if (typeof (element.innerText) != "undefined")
+   { element.innerText = text; }
+   else
+   { element.textContent = text; }
+  }
+ </script>
+</head>
+<body>
+ <table id="tableHeadings" summary="This table provides the headings for the list of accounts displayed in a grid.">
+  <thead>
+   <tr>
+    <th class="leftColumn">
+     Account Name
+    </th>
+    <th class="rightColumn">
+     Main Phone
+    </th>
+   </tr>
+  </thead>
+ </table>
+ <div id="tableContainer">
+  <table id="accountsTable" rules="groups" summary="This table displays the accounts retrieved.">
+   <tbody id="accountsGrid" />
+  </table>
+ </div>
+ <div id="controlsContainer">
+  <div>
+   <span>Maximum Number of Accounts to Retrieve:
+    <select id="numberOfAccountsToRetrieve">
+     <option value="10" selected="selected">10</option>
+     <option value="100" selected="selected">100</option>
+     <option value="300">300</option>
+     <option value="600">600</option>
+     <option value="900">900</option>
+    </select>
+    <button id="btnRetrieveAccounts">
+     Retrieve Accounts</button>
+   </span>
+  </div>
+  <div id="successMessage" style="display: none;">
+   Total Number of Accounts Retrieved : <span id="accountsRetrieved"></span>
+  </div>
+ </div>
+</body>
+</html>
+<!--</snippetJavaScriptRESTRetrieveMultipleHTML>-->

@@ -1,0 +1,46 @@
+﻿SERVICE REFERENCES
+Add the following service references, using your server name:
+
+1) Example URL: https://myserver/XRMServices/2011/Discovery.svc
+   Namespace: CrmSdk.Discovery
+2) Example URL: https://myserver/XRMServices/2011/Organization.svc
+   Namespace: CrmSdk
+
+If you don't know the URL for the services, do the following:
+1) Launch the CRM Application in Internet Explorer
+2) Navigate to Settings -> Customizations
+3) Click Developer Resources
+4) Note down the URL for the Discovery Service and the Organization Service.
+
+CONFIGURATION FILE CHANGES
+1) In the "<binding name="CustomBinding_IOrganizationService">" node, locate the "<issuer ...>" node.
+   This node allows the user to specify which Issuer should be used when issuing a token. The various 
+   STS endpoints will be present in the commented out "alternativeIssuedTokenParameters" node. In my
+   example, KerberosMixed is used. In order to use KerberosMixed, the "binding" and "bindingConfiguration"
+   attributes need to be updated to match the node in "alternativeIssuedTokenParameters". The easiest
+   way to find this endpoint is to search for "https://adfs.contoso.com:555/adfs/services/trust/13/kerberosmixed".
+   
+   In the generated configuration file, you'll find: 
+   <issuer address="https://adfs.contoso.com:555/adfs/services/trust/13/kerberosmixed" 
+           bindingConfiguration="https://adfs.contoso.com:555/adfs/services/trust/13/kerberosmixed" 
+		   binding="customBinding" />
+
+   Copy this node and replace the current issuer node in the "<binding name="CustomBinding_IOrganizationService">"
+   node.
+2) Copy all of the child nodes in the "<binding name="CustomBinding_IOrganizationService">" node and overwrite
+   the current child nodes of the "<binding name="CustomBinding_IDiscoveryService">" in order to ensure that
+   the Discovery Service and Organization Service have the same configuration.
+   NOTE: When adding the two services, the configuration for the Discovery Service is removed (incorrectly).
+3) If needed, update the addresses in the "<endpoint ...>" nodes for each service.
+
+CODE CHANGES
+1) Open Program.cs and update the UserDomain, UserName, UserPassword, DiscoveryServiceUrl, 
+   and OrganizationUniqueName constants.
+   NOTE: These values are only required in order to make the sample work.
+
+BUILD and RUN
+1) Right click on the ADClaims project and choose Build.
+	(Warnings are expected and can be ignored.)
+2) Place a breakpoint after the WhoAmI call.
+3) Right click on the ADClaims project and choose Debug.
+
