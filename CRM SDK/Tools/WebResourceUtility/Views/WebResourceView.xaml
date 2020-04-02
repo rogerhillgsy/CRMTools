@@ -1,0 +1,330 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	x:Class="Microsoft.Crm.Sdk.Samples.WebResourceView"
+    xmlns:view="clr-namespace:Microsoft.Crm.Sdk.Samples"
+	x:Name="UserControl" d:DesignWidth="500"
+	>
+
+    <UserControl.Resources>
+        <view:BoolToVisibilityConverter x:Key="boolToVisibilityConverter" />
+    </UserControl.Resources>
+    <Border x:Name="LayoutRoot" CornerRadius="8,8,8,8" Background="LightGray" >
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"  />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Load an existing package or create a new one."	
+                Margin="4"
+				FontWeight="Bold" 
+				FontSize="18.667" 
+				FontFamily="/WebResourceUtility;component/Fonts/#Arial" >
+            </TextBlock>
+
+            <TextBlock Grid.Row="1" 
+			    Text="Packages" 
+			    FontWeight="Bold" 
+			    Margin="4,10,4,0"  />
+            
+            <!-- Packages -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Height="Auto" MaxHeight="120" Margin="4,0,4,0" >
+                <DataGrid x:Name="WebResourcePackagesGrid"				                        
+                    IsManipulationEnabled="False"
+				    ItemsSource="{Binding Path=Packages}"
+				    SelectedItem="{Binding Path=SelectedPackage, Mode=TwoWay}"
+				    SelectionMode="Single" 
+                    AutoGenerateColumns="False" 
+                    IsReadOnly="True" >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Package Name" Binding="{Binding Path=Attribute[name].Value}" Width="Auto" MinWidth="120" />
+                        <DataGridTextColumn Header="Root Path" Binding="{Binding Path=Attribute[rootPath].Value}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+
+            <!-- Package Commands -->
+            <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,0,0,20"
+				
+				HorizontalAlignment="Stretch">
+                <Button x:Name="LoadPackageButton" 
+				Command="{Binding Path=ActivateSelectedPackageCommand}" 
+				Content="Load Package" 
+				Margin="4,2,0,0" />            	
+                
+                <Button x:Name="NewPackageButton" Command="{Binding Path=CreateNewPackageCommand}"  Content="New Package" Margin="4,2,0,0" Height="20.277" VerticalAlignment="Top"/>
+                <Button x:Name="DeletePackageButton" Command="{Binding Path=DeleteActivePackageCommand}"  Content="Delete" Margin="4,2,4,0" />                
+            </StackPanel>
+            
+            
+            <!-- Package Workstation -->
+            <Border x:Name="OutputBorder"
+                    Grid.Row="4" 
+                    Margin="4,0,4,8" 
+                    CornerRadius="8,8,8,8" 
+                    Background="DarkGray" 
+                    Visibility="{Binding Path=IsActivePackageSet, Converter={StaticResource boolToVisibilityConverter}}">
+                <Grid>
+                    <Grid Grid.Row="0" Visibility="{Binding Path=IsWorkstationDisplayed, Converter={StaticResource boolToVisibilityConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Label Margin="4" HorizontalAlignment="Right" FontWeight="Bold">Package Name</Label>
+                        <TextBox Margin="4" 
+					        Grid.Column="1"
+					        Grid.ColumnSpan="2"
+                            ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}"
+                            >
+                            <TextBox.Text>
+                                <Binding Path="ActivePackage.Attribute[name].Value" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged" >
+                                    <Binding.ValidationRules>
+                                        <view:RegexValidationRule Pattern="[^a-z0-9A-Z_\\./]|[/]{2,}" Message="Error: Can only contain alphnumeric, periods, underscores, and single forward slash" />
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                        </TextBox>
+                            <Label Grid.Row="1" HorizontalAlignment="Right" Margin="4" FontWeight="Bold">Root Path</Label>
+                    <TextBox IsEnabled="False" Text="{Binding Path=ActivePackage.Attribute[rootPath].Value, Mode=TwoWay}"
+					Grid.Row="1" 
+					Grid.Column="1"
+					Grid.ColumnSpan="2"
+                    Margin="4"/>
+                    <Button x:Name="BrowseButton" 
+                            Command="{Binding BrowseFolderCommand}" 
+                            Content="Browse"
+                            Grid.Row="1"
+                            Margin="2,4,0,4"
+                            Grid.Column="3"
+                            Width="60"
+                            HorizontalAlignment="Left"/>
+
+                    
+
+                    <!-- File Search Section -->
+                    <GroupBox Grid.Row="2"
+					    Grid.ColumnSpan="4"					    
+					    Margin="4" >
+                    	<GroupBox.Header>
+                    		<TextBlock Text="File Search" FontWeight="Bold" />              	
+						</GroupBox.Header>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <Label VerticalAlignment="Bottom" HorizontalAlignment="Right" FontWeight="Bold">Search by Filename:</Label>
+
+                            <TextBox x:Name="FileNameTextBox" 
+                            Text="{Binding Path=FileSearchText, Mode=TwoWay}" 
+                            Grid.Row="0" 
+                            Grid.Column="1" 
+                            />
+
+                            <Button x:Name="RefreshFilesButton" 
+                                    Margin="4,0,0,0" 
+                                    Width="100"
+                                    Command="{Binding Path=RefreshFilesCommand}"                             
+							        Content="Search" 
+							        Grid.Row="0"
+							        Grid.Column="3"
+                            />
+
+                            <DataGrid x:Name="FileDataGrid" 
+                                IsReadOnly="True"
+                                SelectionMode="Extended" 
+                                SelectionUnit="FullRow"
+                                ItemsSource="{Binding Path=CurrentFiles}"					            
+                                AutoGenerateColumns="False"
+							    Grid.Row="3" 
+                                Grid.ColumnSpan="3" 
+                                Height="140"                                 
+                                Margin="0,4,0,0" >
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn  Header="Type" Binding="{Binding Path=Extension}" />
+                                    <DataGridTextColumn  Header="File Name" Binding="{Binding Path=Name}"  />
+                                    <DataGridTextColumn  Header="Path" Binding="{Binding Path=FullName}"/>                                   
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            
+
+                            <!-- The DataGrid's SelectedItems property is read-only and can not be 
+                            bound via XAML. We need to have the SelectedItems to know which
+                            to add to the Web Resource datagrid. 
+                            Workaround:
+                            When the user clicks the Add Web Resource button, send a CommandParameter
+                            along with the Command that is bound to the grid's SelectedItems. In
+                            the RelayCommand, extract the Items and update the ViewModel accordingly.
+                            NOTE: This will only keep the ViewModel synced with the selectedrows when
+                            the button is clicked. Any changes thereafter are unrecognized until clicked
+                            again 
+                            -->
+                            
+                            <Button x:Name="AddFileButton" 
+                            Command="{Binding Path=ConvertFileToResourceCommand}"
+                            CommandParameter="{Binding ElementName=FileDataGrid, Path=SelectedItems}"
+                            Margin="0,2,0,4"
+							Content="Add Files to Web Resources" 
+							Grid.Row="4"
+							Grid.Column="0"/>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- Web Resources Section -->
+                    <GroupBox 
+					Grid.Row="3"					
+					Grid.ColumnSpan="4"
+					Margin="4,4,4,8">
+                    	<GroupBox.Header>
+                    		<TextBlock Text="Web Resources" FontWeight="Bold" />              	
+						</GroupBox.Header>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <CheckBox Grid.Row="1" x:Name="PackageNamePrefixCheckBox" Content="Use Package Name as Web Resource namespace" 
+                                IsChecked="{Binding Path=ActivePackage.Attribute[isNamePrefix].Value}"
+                                Margin="0,4,0,0"
+                                Grid.ColumnSpan="2"/>
+                            
+                            <StackPanel Grid.ColumnSpan="2"  Orientation="Horizontal">
+                                <TextBlock >Web Resource name prefix:</TextBlock>
+                                <TextBlock Margin="4,0,0,0" 
+                                        Text="{Binding Path=ActivePublisher.CustomizationPrefix}"></TextBlock>
+                                <TextBlock Text="_"
+                                       Visibility="{Binding Path=IsActiveSolutionSet, Converter={StaticResource boolToVisibilityConverter}}"/>
+                                <TextBlock Text="/"
+                                        Visibility="{Binding ElementName=PackageNamePrefixCheckBox, Path=IsChecked, Converter={StaticResource boolToVisibilityConverter}}" />
+                                <TextBlock Text="{Binding Path=ActivePackage.Attribute[name].Value}"
+                                       Visibility="{Binding ElementName=PackageNamePrefixCheckBox, Path=IsChecked, Converter={StaticResource boolToVisibilityConverter}}"/>
+                               
+                            </StackPanel>
+                            
+                            
+                            <DataGrid x:Name="WebResourcesDataGrid" 
+                            ItemsSource="{Binding Path=WebResourceInfos}"                                
+					        SelectionMode="Extended" 
+                            AutoGenerateColumns="False"
+                            Grid.Row="2"
+							Grid.ColumnSpan="2" 
+                            Height="140" Margin="0,4,0,0">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn IsReadOnly="True" Header="Type" Binding="{Binding Path=Attribute[type].Value}" />                                    
+                                    <DataGridTextColumn Header="Name (editable)" Binding="{Binding Path=Attribute[name].Value}" />
+                                    <DataGridTextColumn Header="Display Name (editable)" Binding="{Binding Path=Attribute[displayName].Value, Mode=TwoWay}" />                                    
+                                    <DataGridTextColumn Header="Description (editable)" Binding="{Binding Path=Attribute[description].Value, Mode=TwoWay}" />                                                                   
+                                </DataGrid.Columns>
+                            </DataGrid>                            
+
+                            <Button Grid.Row="3" x:Name="RemoveWebResourceButton" Margin="0,2,0,0"
+							    Content="Remove Web Resource" 
+                                Command="{Binding Path=DeleteWebResourcesCommand}"
+                                CommandParameter="{Binding ElementName=WebResourcesDataGrid, Path=SelectedItems}"							        
+							    />                                
+                            
+                        </Grid>
+                    </GroupBox>
+                    
+                    <!-- Publish options-->
+                        <CheckBox HorizontalAlignment="Center" Margin="4"
+                               Grid.Row="4" Grid.ColumnSpan="4"
+                               IsChecked="{Binding Path=ShouldPublishAllAfterUpload, Mode=TwoWay}" 
+                               Content="Publish all customizations after uploading web resources." />
+
+                    <!-- Package Commands -->
+                    <StackPanel 
+                        Grid.Row="5" 
+                        Grid.Column="0" 
+                        Grid.ColumnSpan="4" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Center" >
+                        <Button x:Name="SavePackageButton"
+                                Command="{Binding Path=SaveActivePackageCommand}"  
+                                Content="Save Package" 
+                                Margin="4"
+                                Grid.Row="4"
+                                Grid.ColumnSpan="4" Width="120" Height="30"/>
+                        <Button x:Name="DeployAllButton"
+                                Width="120"
+                                Command="{Binding Path=UploadAllWebResourcesCommand}"                                
+                                Margin="4"
+							    Content="Upload All" 
+							    />
+                        <Button x:Name="DeployWebResourcesButton"
+                                Command="{Binding Path=UploadWebResourcesCommand}"
+                                Width="120"
+                                CommandParameter="{Binding ElementName=WebResourcesDataGrid, Path=SelectedItems}"
+                                Margin="4"
+							    Content="Upload Selected" 
+							    />
+                        <Button  Command="{Binding Path=ShowOutputWindow}"
+                                HorizontalAlignment="Right"                               
+                                Margin="4"
+							    Content="Show Output" 
+							    />
+                        </StackPanel>
+
+                </Grid>
+                    <Grid Grid.Row="0"
+                          Visibility="{Binding Path=IsOutputWindowDisplayed, Converter={StaticResource boolToVisibilityConverter}}"
+                          MaxHeight="{Binding ElementName=OutputBorder, Path=ActualHeight}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*"  />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Output" FontWeight="Bold" Margin="4" />
+                        <ScrollViewer Grid.Row="1"
+                                      Margin="4"
+                                      HorizontalScrollBarVisibility="Visible" 
+                                      VerticalScrollBarVisibility="Visible" >
+                            <TextBox IsReadOnly="True" Text="{Binding Path=ProgressMessage}" />
+                        </ScrollViewer>
+                        <Button Grid.Row="2" Content="Hide Output" Command="{Binding Path=HideOutputWindow}" Width="140" Margin="4" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            
+        </Grid>
+    </Border>
+
+</UserControl>

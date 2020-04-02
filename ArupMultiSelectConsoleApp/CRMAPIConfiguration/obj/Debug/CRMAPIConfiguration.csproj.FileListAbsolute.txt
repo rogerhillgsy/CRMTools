@@ -1,9 +1,0 @@
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CRMAPIConfiguration\bin\Debug\CRMAPIConfiguration.exe.config
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CRMAPIConfiguration\bin\Debug\CRMAPIConfiguration.exe
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CRMAPIConfiguration\bin\Debug\CRMAPIConfiguration.pdb
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CRMAPIConfiguration\bin\Debug\Microsoft.Crm.Sdk.Proxy.dll
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CRMAPIConfiguration\bin\Debug\Microsoft.Xrm.Sdk.dll
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CRMAPIConfiguration\obj\Debug\CRMAPIConfiguration.csproj.CoreCompileInputs.cache
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CRMAPIConfiguration\obj\Debug\CRMAPIConfiguration.csproj.CopyComplete
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CRMAPIConfiguration\obj\Debug\CRMAPIConfiguration.exe
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\CRMAPIConfiguration\obj\Debug\CRMAPIConfiguration.pdb

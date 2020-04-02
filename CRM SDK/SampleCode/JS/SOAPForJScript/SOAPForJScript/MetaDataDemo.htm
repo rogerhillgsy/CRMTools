@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<!--
+This file is part of the Microsoft Dynamics CRM SDK code samples.
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+This source code is intended only as a supplement to Microsoft
+Development Tools and/or on-line documentation.  See these other
+materials for detailed information regarding Microsoft code samples.
+
+THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+PARTICULAR PURPOSE.
+-->
+<!--<snippetMetaDataDemo>-->
+<html lang="en-US">
+<head>
+ <title>Metadata Demonstration</title>
+ <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <script src="../ClientGlobalContext.js.aspx" type="text/javascript"></script>
+ <script src="Scripts/SDK.MetaData.js" type="text/javascript"></script>
+ <script type="text/javascript">
+  // An unordered list element to add Entity list items to
+  var results;
+  // An area to display messages
+  var message;
+
+  // Alert flag to indicate the changes
+  var alertFlag;
+
+  function startSample() {
+   ///<summary>
+   /// Initializes the sample when the document is ready
+   ///</summary>
+   //Assign the global variables
+   results = document.getElementById("results");
+   message = document.getElementById("message");
+   alertFlag = document.getElementById("dispalert");
+   document.getElementById("btnstartSample").setAttribute("disabled", "disabled");
+   //Retrieve entities
+   SDK.Metadata.RetrieveAllEntities(SDK.Metadata.EntityFilters.Entity,
+    false,
+    successRetrieveAllEntities,
+    errorRetrieveAllEntities);
+   setText(message, "Loading...");
+
+  }
+
+  function successRetrieveAllEntities(entityMetadataCollection) {
+   ///<summary>
+   /// Receives the data from SDK.Metadata.RetrieveAllEntities and 
+   /// appends a list item to results for each one.
+   ///</summary>
+
+   entityMetadataCollection.sort(function (a, b) {
+    if (a.LogicalName < b.LogicalName)
+    { return -1 }
+    if (a.LogicalName > b.LogicalName)
+    { return 1 }
+    return 0;
+   });
+
+   for (var i = 0; i < entityMetadataCollection.length; i++) {
+
+    var entity = entityMetadataCollection[i];
+    var entityNode = document.createElement("li");
+    var entitySpan = document.createElement("span");
+
+    setText(entitySpan, entity.SchemaName);
+    entitySpan.id = entity.LogicalName;
+    entitySpan.title = "Click to Retrieve Attributes.";
+    entitySpan.attributesRetrieved = false;
+    // Add the event handler to retrieve attributes 
+    entitySpan.onclick = retrieveAttributes;
+    entitySpan.style.cursor = "pointer";
+
+    entityNode.appendChild(entitySpan);
+    results.appendChild(entityNode);
+
+   }
+
+   setText(message, entityMetadataCollection.length +
+   " entities retrieved. Click each entity to retrieve the entity attributes.");
+   if (alertFlag.checked == true)
+    alert("Entity List Retrieved.");
+  }
+  function errorRetrieveAllEntities(error) {
+   ///<summary>
+   /// Displays the error returned from  SDK.Metadata.RetrieveAllEntities if it fails.
+   ///</summary>
+   setText(message, error.message);
+   if (alertFlag.checked == true)
+    alert("An Error occurred.");
+  }
+
+  function retrieveAttributes() {
+   ///<summary>
+   /// Retrieves attributes for the entity list item that is clicked
+   ///</summary>
+   if (this.attributesRetrieved == false) {
+    var entityLogicalName = this.id;
+    // Display an entity list item level notification while retrieving data.
+    var notification = document.createElement("span");
+
+
+    setText(notification, "   Retrieving attributes for " + getText(this) + "...");
+    notification.id = entityLogicalName + "Notification";
+    this.parentElement.appendChild(notification);
+
+    SDK.Metadata.RetrieveEntity(SDK.Metadata.EntityFilters.Attributes,
+    this.id,
+    null,
+    false,
+    function (entityMetadata) { successRetrieveEntity(entityLogicalName, entityMetadata); },
+    errorRetrieveEntity);
+
+
+   }
+   this.attributesRetrieved = true;
+   this.title = "";
+  }
+
+  function successRetrieveEntity(logicalName, entityMetadata) {
+   ///<summary>
+   /// Retrieves attributes for the entity list item that is clicked
+   ///</summary>
+
+   // Update the entity list item notification when data is retrieved.
+
+   entityMetadata.Attributes.sort(function (a, b) {
+    if (a.LogicalName < b.LogicalName)
+    { return -1 }
+    if (a.LogicalName > b.LogicalName)
+    { return 1 }
+    return 0;
+   });
+
+   var notification = setText(document.getElementById(logicalName +
+   "Notification"), "   Retrieved " + entityMetadata.Attributes.length + " attributes.");
+
+   var attributeList = document.createElement("ul");
+
+   for (var i = 0; i < entityMetadata.Attributes.length; i++) {
+    var attribute = entityMetadata.Attributes[i];
+    var attributeNode = document.createElement("li");
+    setText(attributeNode, attribute.SchemaName);
+    attributeList.appendChild(attributeNode);
+   }
+   // Access the entity list item element
+   var entityNode = document.getElementById(logicalName).parentElement;
+
+   entityNode.appendChild(attributeList);
+   entityNode.attributesDisplayed = true;
+   // Attach event handler to toggle display of attributes.
+   entityNode.firstChild.onclick = toggleDisplayAttributes;
+   entityNode.firstChild.title = "Click to hide attributes.";
+   if (alertFlag.checked == true)
+    alert(entityMetadata.SchemaName + " attributes retrieved.");
+  }
+  function errorRetrieveEntity(error) {
+   ///<summary>
+   /// Displays the error returned from SDK.Metadata.RetrieveEntity if it fails.
+   ///</summary>
+   setText(message, error.message);
+   if (alertFlag.checked == true)
+    alert("Error!");
+  }
+
+  function toggleDisplayAttributes() {
+   ///<summary>
+   /// toggles whether the list of attributes is displayed.
+   ///</summary>
+
+   if (this.parentElement.attributesDisplayed) {
+    this.parentElement.lastChild.style.display = "none";
+    this.parentElement.attributesDisplayed = false;
+    this.title = "Click to show attributes.";
+
+    if (alertFlag.checked == true)
+     alert("Attributes were hidden.");
+   }
+   else {
+    this.parentElement.lastChild.style.display = "block";
+    this.parentElement.attributesDisplayed = true;
+    this.title = "Click to hide attributes.";
+
+    if (alertFlag.checked == true)
+     alert("Attributes are displayed.");
+   }
+
+  }
+
+  // setText and getText mitigate differences in how browsers set or get text content.
+  function setText(node, text) {
+   if (typeof (node.innerText) != "undefined") {
+    node.innerText = text;
+   }
+   else {
+    node.textContent = text;
+   }
+
+  }
+
+  function getText(node) {
+   if (typeof (node.innerText) != "undefined") {
+    return node.innerText;
+   }
+   else {
+    return node.textContent;
+   }
+  }
+
+ </script>
+</head>
+<body style="font-family: Segoe UI;">
+ <h1>
+  Metadata Demonstration Sample</h1>
+ <p>
+  This form requires JavaScript and will update the page dynamically.</p>
+ <p>
+  <input id="dispalert" name="dispalert" type="checkbox" value="alert" /><label for="dispalert">Display alert window when data changes.</label></p>
+ <p>
+  <label id="lblstartSample" for="btnstartSample">
+   Click to start the sample:
+  </label>
+  <input type="button" id="btnstartSample" name="btnstartSample" value="Start" onclick="startSample()" /></p>
+ <div id="message">
+ </div>
+ <ul id="results">
+ </ul>
+</body>
+</html>
+<!--</snippetMetaDataDemo>-->

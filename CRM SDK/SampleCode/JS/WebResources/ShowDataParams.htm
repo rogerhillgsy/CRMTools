@@ -1,0 +1,123 @@
+<!DOCTYPE html >
+<html lang="en-us">
+<head>
+ <title>Show Data Parameters Page</title>
+ <style type="text/css">
+  body
+  {
+   font-family: Segoe UI, Tahoma, Arial;
+   background-color: #d6e8ff;
+  }
+  tbody
+  {
+   background-color: white;
+  }
+  th
+  {
+   background-color: black;
+   color: White;
+  }
+ </style>
+ <script type="text/javascript">
+  document.onreadystatechange = function () {
+   if (document.readyState == "complete") {
+    getDataParam();
+   }
+  }
+
+  function getDataParam() {
+   //Get the any query string parameters and load them
+   //into the vals array
+
+   var vals = new Array();
+   if (location.search != "") {
+    vals = location.search.substr(1).split("&");
+    for (var i in vals) {
+     vals[i] = vals[i].replace(/\+/g, " ").split("=");
+    }
+    //look for the parameter named 'data'
+    var found = false;
+    for (var i in vals) {
+     if (vals[i][0].toLowerCase() == "data") {
+      parseDataValue(vals[i][1]);
+      found = true;
+      break;
+     }
+    }
+    if (!found)
+    { noParams(); }
+   }
+   else {
+    noParams();
+   }
+  }
+
+  function parseDataValue(datavalue) {
+   if (datavalue != "") {
+    var vals = new Array();
+
+    var message = document.createElement("p");
+    setText(message, "These are the data parameters values that were passed to this page:");
+    document.body.appendChild(message);
+
+    vals = decodeURIComponent(datavalue).split("&");
+    for (var i in vals) {
+     vals[i] = vals[i].replace(/\+/g, " ").split("=");
+    }
+
+    //Create a table and header using the DOM
+    var oTable = document.createElement("table");
+    var oTHead = document.createElement("thead");
+    var oTHeadTR = document.createElement("tr");
+    var oTHeadTRTH1 = document.createElement("th");
+    setText(oTHeadTRTH1, "Parameter");
+    var oTHeadTRTH2 = document.createElement("th");
+    setText(oTHeadTRTH2, "Value");
+    oTHeadTR.appendChild(oTHeadTRTH1);
+    oTHeadTR.appendChild(oTHeadTRTH2);
+    oTHead.appendChild(oTHeadTR);
+    oTable.appendChild(oTHead);
+    var oTBody = document.createElement("tbody");
+    //Loop through vals and create rows for the table
+    for (var i in vals) {
+     var oTRow = document.createElement("tr");
+     var oTRowTD1 = document.createElement("td");
+     setText(oTRowTD1, vals[i][0]);
+     var oTRowTD2 = document.createElement("td");
+     setText(oTRowTD2, vals[i][1]);
+
+     oTRow.appendChild(oTRowTD1);
+     oTRow.appendChild(oTRowTD2);
+     oTBody.appendChild(oTRow);
+    }
+
+    oTable.appendChild(oTBody);
+    document.body.appendChild(oTable);
+   }
+   else {
+    noParams();
+   }
+  }
+
+  function noParams() {
+   var message = document.createElement("p");
+   setText(message, "No data parameter was passed to this page");
+
+
+   document.body.appendChild(message);
+  }
+  //Added for cross browser support.
+  function setText(element, text) {
+   if (typeof element.innerText != "undefined") {
+    element.innerText = text;
+   }
+   else {
+    element.textContent = text;
+   }
+
+  }
+ </script>
+</head>
+<body>
+</body>
+</html>

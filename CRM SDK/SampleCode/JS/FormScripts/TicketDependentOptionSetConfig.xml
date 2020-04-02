@@ -1,0 +1,120 @@
+﻿<!--<snippetTicketDependentOptionSetConfig.xml>-->
+<DependentOptionSetConfig entity="sample_ticket" >
+ <ParentField id="sample_category"
+              label="Category">
+  <DependentField id="sample_subcategory"
+                  label="Sub Category" />
+  <Option value="727000000"
+          label="Software">
+   <ShowOption value="727000000"
+               label="Personal Productivity" />
+   <ShowOption value="727000001"
+               label="Business Applications" />
+   <ShowOption value="727000002"
+               label="Operating Systems" />
+  </Option>
+  <Option value="727000001"
+          label="Hardware">
+   <ShowOption value="727000003"
+               label="Desktop Computer" />
+   <ShowOption value="727000004"
+               label="Laptop Computer" />
+   <ShowOption value="727000005"
+               label="Monitor" />
+   <ShowOption value="727000006"
+               label="Printer" />
+   <ShowOption value="727000007"
+               label="Telephone" />
+  </Option>
+ </ParentField>
+ <ParentField id="sample_subcategory"
+              label="Sub Category">
+  <DependentField id="sample_type"
+                  label="Type" />
+  <Option value="727000000"
+          label="Personal Productivity">
+   <ShowOption value="727000000"
+               label="Word Processor" />
+   <ShowOption value="727000001"
+               label="Spreadsheet" />
+   <ShowOption value="727000002"
+               label="Internet Browser" />
+   <ShowOption value="727000003"
+               label="E-mail" />
+  </Option>
+  <Option value="727000001"
+          label="Business Applications">
+   <ShowOption value="727000004"
+               label="Customer Relationship Management" />
+   <ShowOption value="727000005"
+               label="Enterprise Resource Management" />
+   <ShowOption value="727000006"
+               label="Human Resource Managment" />
+  </Option>
+  <Option value="727000002"
+          label="Operating Systems">
+   <ShowOption value="727000007"
+               label="Windows Vista" />
+   <ShowOption value="727000008"
+               label="Windows 7" />
+   <ShowOption value="727000009"
+               label="Windows Server 2003" />
+   <ShowOption value="727000010"
+               label="Windows Server 2008" />
+  </Option>
+  <Option value="727000003"
+          label="Desktop Computer">
+   <ShowOption value="727000011"
+               label="Workstation x1000" />
+   <ShowOption value="727000012"
+               label="Workstation x2000" />
+   <ShowOption value="727000013"
+               label="Workstation x3000" />
+   <ShowOption value="727000014"
+               label="Workstation x4000" />
+  </Option>
+  <Option value="727000004"
+          label="Laptop Computer">
+   <ShowOption value="727000015"
+               label="Laptop 1000 series" />
+   <ShowOption value="727000016"
+               label="Laptop 2000 series" />
+   <ShowOption value="727000017"
+               label="Laptop 3000 series" />
+   <ShowOption value="727000018"
+               label="Laptop 4000 series" />
+  </Option>
+  <Option value="727000005"
+          label="Monitor">
+   <ShowOption value="727000019"
+               label="CRT-XYZ 17 inch" />
+   <ShowOption value="727000020"
+               label="LCD-XYZ 17 inch" />
+   <ShowOption value="727000021"
+               label="LCD-XYZ 21 inch" />
+   <ShowOption value="727000022"
+               label="LCD-XYZ 24 inch" />
+  </Option>
+  <Option value="727000006"
+          label="Printer">
+   <ShowOption value="727000023"
+               label="Series 1000 Printer - Private" />
+   <ShowOption value="727000024"
+               label="Series 2000 Color Printer - Private" />
+   <ShowOption value="727000025"
+               label="Series 9000 Printer - Shared" />
+   <ShowOption value="727000026"
+               label="Series 9000 Color Printer - Shared" />
+  </Option>
+  <Option value="727000007"
+          label="Telephone">
+   <ShowOption value="727000027"
+               label="PSTN Phone" />
+   <ShowOption value="727000028"
+               label="IP Phone" />
+   <ShowOption value="727000029"
+               label="Mobile Phone" />
+  </Option>
+ </ParentField>
+</DependentOptionSetConfig>
+<!--</snippetTicketDependentOptionSetConfig.xml>-->

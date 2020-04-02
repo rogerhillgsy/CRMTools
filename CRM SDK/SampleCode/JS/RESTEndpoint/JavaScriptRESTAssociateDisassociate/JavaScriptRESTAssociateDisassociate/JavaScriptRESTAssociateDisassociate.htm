@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<!--
+This file is part of the Microsoft Dynamics CRM SDK code samples.
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+This source code is intended only as a supplement to Microsoft
+Development Tools and/or on-line documentation.  See these other
+materials for detailed information regarding Microsoft code samples.
+
+THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+PARTICULAR PURPOSE.
+-->
+<!--<snippetJavaScriptRESTAssociateDisassociateHTML>-->
+<html lang="en-US">
+<head>
+ <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+ <title>JavaScript REST Associate and Disassociate Sample</title>
+ <script src="../ClientGlobalContext.js.aspx" type="text/javascript"></script>
+ <script src="Scripts/SDK.REST.js" type="text/javascript"></script>
+ <script src="Scripts/JavaScriptRESTAssociateDisassociate.js" type="text/javascript"></script>
+</head>
+<body style="background-color: White; font-family: Segoe UI; font-size: small;">
+ <h1 style="font-size: small;">
+  Associating and Disassociating Records using JavaScript and the REST Endpoint for Web Resources</h1>
+ <p>
+  This page requires JavaScript and will update dynamically.</p>
+ <p>
+  <input id="dispalert" name="dispalert" type="checkbox" value="alert" /><label for="dispalert">Display alert window when data changes.</label></p>
+ <table width="100%" summary="This table displays 2 samples which will demonstrate associating records using JavaScript and the REST Endpoint for Web Resources.">
+  <thead>
+   <tr>
+    <th scope="col">
+     Associate Accounts Sample
+    </th>
+    <th scope="col">
+     Associate Account to Email as ActivityParty Sample
+    </th>
+   </tr>
+  </thead>
+  <tr>
+   <td>
+    <p>
+     <label for="btnStartAssociateAccounts">
+      Click the <b>Start Associate Accounts Sample</b> button to start the sample showing how to associate two account records.</label></p>
+    <button id="btnStartAssociateAccounts" title="Start the Associate Accounts Sample">
+     Start Associate Accounts Sample</button><br />
+    <p>
+     This sample will:</p>
+    <ol>
+     <li>Create a new account record named "Parent Account".</li>
+     <li>Create a new account record named "Child Account".</li>
+     <li>Associate the records setting the "Parent Account" as the Parent Account of the "Child Account".</li>
+     <li>Display links to allow you to verify that the association was done.</li>
+     <li>Display a button to allow you to disassociate the records.
+      <ul>
+       <li>If you choose this option the sample will display links to allow you to verify that the records are no longer associated.</li>
+      </ul>
+     </li>
+     <li>Display a button to allow you to delete the records.
+      <ul>
+       <li>If you choose this option the sample will display a message when the records are deleted.</li>
+      </ul>
+     </li>
+    </ol>
+   </td>
+   <td valign="top" style="border-left: 1px solid black; padding-left: 5px;">
+    <p>
+     Click the <b>Start Associate Account to Email as ActivityParty Sample</b> button to start the sample showing how to associate an account record to an activity using ActivityParty.</p>
+    <button id="btnStartAssociateAccountToEmail" title="Start the Associate Account to Email as ActivityParty sample.">
+     Start Associate Account to Email as ActivityParty Sample</button>
+    <p>
+     This sample will:</p>
+    <ol>
+     <li>Create a new account record named "Email Sender Account".</li>
+     <li>Create a new email activity record named "Email Activity".</li>
+     <li>Create a new activity party record that associates the "Email Sender Account" to the <b>From:</b> field of the "Email Activity".</li>
+     <li>Display links to allow you to verify that the association was done.</li>
+     <li>Display a button to allow you to delete the records.
+      <ul>
+       <li>If you choose this option the sample will display a message when the records are deleted.</li>
+      </ul>
+     </li>
+    </ol>
+   </td>
+  </tr>
+ </table>
+ <p>
+  <label for="btnResetSample">
+   After running one of the samples, click the <b>Reset Sample</b> button to reset the sample.</label></p>
+ <button id="btnResetSample" title="Reset the sample" disabled="disabled">
+  Reset Sample</button>
+ <h2 style="font-size: small;">
+  Results:</h2>
+ <hr />
+ <ol id="output">
+ </ol>
+</body>
+</html>
+<!--</snippetJavaScriptRESTAssociateDisassociateHTML>-->

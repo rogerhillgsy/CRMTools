@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--
+=====================================================================
+This file is part of the Microsoft Dynamics CRM SDK code samples.
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+This source code is intended only as a supplement to Microsoft
+Development Tools and/or on-line documentation.  See these other
+materials for detailed information regarding Microsoft code samples.
+
+THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+PARTICULAR PURPOSE.
+=====================================================================
+-->
+<!--<snippetAssignTest>-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>Assign Test</title>
+ <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <script src="../ClientGlobalContext.js.aspx" type="text/javascript"></script>
+ <script src="Scripts/SDK.REST.js" type="text/javascript"></script>
+ <script src="Scripts/SDK.SOAPSample.Assign.js" type="text/javascript"></script>
+ <script type="text/javascript">
+  var resultsArea = null;
+  var userid;
+  var accountid;
+  var userLookup;
+  var accountLookup;
+  var accountsToShow = 10;
+  var usersToShow = 10;
+  var users = [];
+  var accounts = [];
+
+  document.onreadystatechange = function () {
+   ///<summary>
+   /// Initializes the sample when the document is ready
+   ///</summary>
+   if (document.readyState == "complete") {
+    userid = document.getElementById("userid");
+    accountid = document.getElementById("accountid");
+    resultsArea = document.getElementById("results");
+    userLookup = document.getElementById("userLookup");
+    accountLookup = document.getElementById("accountLookup");
+
+    populateUserLookup();
+    populateAccountLookup();
+
+   }
+  }
+
+  function testAssign() {
+   //The field to enter the user id of the person the account record should be assigned to.
+   userid.value;
+   // The field to enter the account id of the account record to assign to the user
+   accountid.value;
+   // Since the response does not include any data to parse, simply display a success message.
+   var successCallback = function () { setText(resultsArea, "Success!"); };
+   // Display the error from the message passed back from the response.
+   var errorCallback = function (error) { setText(resultsArea,"errorCallback error: "+error.message); };
+   // Call the function
+   try {
+    SDK.SOAPSamples.assignRequest(userid.value, accountid.value, "account", successCallback, errorCallback);
+   }
+   catch (e) {
+    setText(resultsArea, e.message);
+   }
+
+  }
+
+  function populateUserLookup() {
+   SDK.REST.retrieveMultipleRecords("SystemUser",
+   "$top=" + usersToShow + "&$select=FullName,SystemUserId&$filter=FullName ne 'INTEGRATION' and FullName ne 'SYSTEM'",
+   function (results) {
+    for (var i = 0; i < results.length; i++) {
+     users.push(results[i]);
+    }
+   },
+   function (error) {
+    alert(error.message);
+   },
+   function () {
+    for (var i = 0; i < users.length; i++) {
+     var user = users[i];
+     userLookup.options[i] = new Option(user.FullName, user.SystemUserId);
+    }
+    userid.value = userLookup.options[0].value;
+
+    userLookup.onchange = function () {
+     userid.value = userLookup.options[userLookup.selectedIndex].value;
+     clearMessage();
+    };
+
+   });
+  }
+
+  function populateAccountLookup() {
+   SDK.REST.retrieveMultipleRecords("Account",
+    "$top=" + accountsToShow + "&$select=AccountId,Name,OwnerId",
+   function (results) {
+    for (var i = 0; i < results.length; i++) {
+     accounts.push(results[i]);
+
+    }
+   },
+   function (error) {
+    alert(error.message);
+   },
+   function () {
+    for (var i = 0; i < accounts.length; i++) {
+     var account = accounts[i];
+     accountLookup.options[i] = new Option(account.Name + " : " + account.OwnerId.Name, account.AccountId);
+
+    }
+    accountid.value = accountLookup.options[0].value;
+
+    accountLookup.onchange = function () {
+     accountid.value = accountLookup.options[accountLookup.selectedIndex].value;
+     clearMessage();
+    };
+   });
+  }
+
+  function clearMessage() {
+   setText(resultsArea, "");
+  }
+
+  function setText(element, text) {
+   if (typeof (element.innerText) != "undefined") {
+    element.innerText = text;
+   }
+   else {
+    element.textContent = text;
+   }
+
+  }
+
+ </script>
+</head>
+<body>
+ <table>
+  <tr>
+   <td>
+    <label for="userid">
+     SystemUserId:</label>
+   </td>
+   <td>
+    <input id="userid" type="text" style="width:270px;"  />
+   </td>
+   <td>
+   <select id="userLookup"></select>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <label for="accountid">
+     AccountId:</label>
+   </td>
+   <td>
+    <input id="accountid" type="text" style="width:270px;" />
+   </td>
+      <td>
+   <select id="accountLookup"></select>
+   </td>
+  </tr>
+ </table>
+ <button id="testAssign" title="Click this button to test the testAssign function." onclick="testAssign();">
+  Test Assign</button>
+ <div id="results">
+  &nbsp;</div>
+</body>
+</html>
+<!--</snippetAssignTest>-->

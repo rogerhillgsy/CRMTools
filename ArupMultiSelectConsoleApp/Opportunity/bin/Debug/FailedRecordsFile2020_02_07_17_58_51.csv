@@ -1,3 +1,0 @@
-Entity,RecordId,Error Description, OptionSetValues
-Opportunity,a5883af7-458c-e811-80fa-005056af6807,A validation error occurred.  The value of 'arup_services' on record of type 'opportunity' is outside the valid range.,arup_globalservices : 100000001,100000009 | arup_services : 17 | arup_projecttype : 8 | arup_disciplines : 78,37,50 | arup_projectsector : 52
-Opportunity,e13b4e59-a3aa-e711-80ef-005056af6b35,A validation error occurred.  The value of 'arup_services' on record of type 'opportunity' is outside the valid range.,arup_globalservices :  | arup_services : 9999 | arup_projecttype : 9999 | arup_disciplines : 1 | arup_projectsector : 9999

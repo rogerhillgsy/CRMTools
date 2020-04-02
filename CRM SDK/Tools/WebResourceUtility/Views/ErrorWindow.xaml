@@ -1,0 +1,10 @@
+﻿<Window x:Class="Microsoft.Crm.Sdk.Samples.ErrorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Error!" 
+        WindowStartupLocation="CenterOwner">
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock x:Name="MessageTextBox" Text="{Binding}" />
+        <Button x:Name="OKButton" Content="OK" Width="80" VerticalAlignment="Bottom" Click="OKButton_Click" />
+    </StackPanel>
+</Window>

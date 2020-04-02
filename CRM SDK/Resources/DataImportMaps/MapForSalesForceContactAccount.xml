@@ -1,0 +1,662 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Map Name="For Contact and Account Report Export" Source="SalesForce.com" Version="5.0.0.0" Id="ae49a361-8fc1-464e-9bf6-20e515093815">
+	<Description>Map used for source files that are obtained by using the Contact and Account report of Salesforce.com.</Description>
+	<EntitiesPerFile>Multiple</EntitiesPerFile>
+	<EntityMaps>
+		<EntityMap TargetEntityName="contact" SourceEntityName="Contact" Id="a084237e-817b-4ff4-aa3d-66028b2f516e">
+			<AttributeMaps>
+				<AttributeMap Id="27d3879f-883b-45ea-ae28-dd02fd06b8d1">
+					<SourceAttributeName>Other Street</SourceAttributeName>
+					<TargetAttributeName>address2_line1</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="e72ac7c0-204a-4fe1-aa1c-dc8efc6c2f9e">
+					<SourceAttributeName>Created By</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="771f7cfd-722e-49d4-86c7-a182238804d1">
+					<SourceAttributeName>Last Modified Date</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="de134849-507c-4752-8632-36b5b3e9d6b2">
+					<SourceAttributeName>Fax</SourceAttributeName>
+					<TargetAttributeName>fax</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="c03bd5ec-9676-4d4b-8598-16c0419df304">
+					<SourceAttributeName>Other Phone</SourceAttributeName>
+					<TargetAttributeName>telephone3</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="d7e228fd-027e-480c-806b-aea1a05c1d0c">
+					<SourceAttributeName>Owner Role Display</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="50b577c3-2a04-4f29-afdc-4143410b69a1">
+					<SourceAttributeName>Contact ID</SourceAttributeName>
+					<TargetAttributeName>contactid</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="8a7b017b-b1a5-45da-98b6-35ae30ca3327">
+					<SourceAttributeName>Other Address Line 3</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="e3e5896d-809e-453a-93c5-63822dd101e0">
+					<SourceAttributeName>Other Address Line 1</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="bf68e4bb-f613-4a67-ac03-74806cf6e0e4">
+					<SourceAttributeName>Mobile</SourceAttributeName>
+					<TargetAttributeName>mobilephone</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="8f78d15b-1283-4871-b530-8fc71cb406eb">
+					<SourceAttributeName>Title</SourceAttributeName>
+					<TargetAttributeName>jobtitle</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="c06618d3-4bc4-4e22-b180-cf858eb99c7e">
+					<SourceAttributeName>Mailing Country</SourceAttributeName>
+					<TargetAttributeName>address1_country</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="6339dd6f-f1f2-4e82-94cd-a281840f3ffc">
+					<SourceAttributeName>Asst. Phone</SourceAttributeName>
+					<TargetAttributeName>assistantphone</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="adfbced3-c66b-48b3-832e-19f4c100ffe5">
+					<SourceAttributeName>First Name</SourceAttributeName>
+					<TargetAttributeName>firstname</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="02f0fe6c-416a-4b44-902c-25c9b3aa87c5">
+					<SourceAttributeName>Created Alias</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="a8515b98-3c96-4ad6-8a5d-14e01519a13a">
+					<SourceAttributeName>Email Bounced Reason</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="80a1839e-8632-4ff6-acbb-23b2ed4161ad">
+					<SourceAttributeName>Home Phone</SourceAttributeName>
+					<TargetAttributeName>telephone2</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="4b399ec9-74be-4700-adfc-b95ef9e5b78b">
+					<SourceAttributeName>Last Modified By</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="741e2f7b-0b96-409f-8278-9c30d6ab2468">
+					<SourceAttributeName>Salutation</SourceAttributeName>
+					<TargetAttributeName>salutation</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="8e25e5f1-2f37-4177-94b6-ef7b85eb0265">
+					<SourceAttributeName>Contact Owner Alias</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="2253d654-5d0d-4f56-9915-814462ae98ec">
+					<SourceAttributeName>Contact Owner</SourceAttributeName>
+					<TargetAttributeName>ownerid</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+					<LookupMaps>
+						<!--	SystemUser: System lookup on systemuserid(PK) and fullname(Primary Name).-->
+						<LookupMap>
+							<LookupType>System</LookupType>
+							<LookupEntityName>systemuser</LookupEntityName>
+							<LookupAttributeName>fullname</LookupAttributeName>
+							<ProcessCode>Process</ProcessCode>
+						</LookupMap>
+						<LookupMap>
+							<LookupType>System</LookupType>
+							<LookupEntityName>systemuser</LookupEntityName>
+							<LookupAttributeName>systemuserid</LookupAttributeName>
+							<ProcessCode>Process</ProcessCode>
+						</LookupMap>
+					</LookupMaps>
+				</AttributeMap>
+				<AttributeMap Id="5a674560-01ae-4e46-99c6-2985cc3fe60b">
+					<SourceAttributeName>Lead Source</SourceAttributeName>
+					<TargetAttributeName>leadsourcecode</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="972f20e4-4bee-4981-98d9-cd6d148b3010">
+					<SourceAttributeName>Mailing State/Province</SourceAttributeName>
+					<TargetAttributeName>address1_stateorprovince</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="652ac85e-ac7c-4acb-aeff-319089939a07">
+					<SourceAttributeName>Department</SourceAttributeName>
+					<TargetAttributeName>department</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="38d1ad3e-d4f6-4d7c-a8af-2a4f1465d80a">
+					<SourceAttributeName>Mailing Street</SourceAttributeName>
+					<TargetAttributeName>address1_line1</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="200c6edf-ab3a-4369-af84-242897f663f3">
+					<SourceAttributeName>Mailing Address Line 3</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="5e5b8a89-13e8-4d55-8a3d-2cf7fb06e2d3">
+					<SourceAttributeName>Assistant</SourceAttributeName>
+					<TargetAttributeName>assistantname</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="52af3936-0ac2-4688-9bac-29fdbbce8895">
+					<SourceAttributeName>Reports To</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="ba4fc987-41b3-46c5-8401-f8755271ccc7">
+					<SourceAttributeName>Owner Role Name</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="06707ee1-0b8a-4c6e-8db8-b2a1e7ce8cf8">
+					<SourceAttributeName>Created Date</SourceAttributeName>
+					<TargetAttributeName>overriddencreatedon</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="ef5bc671-a023-4447-a25d-077f4df073d1">
+					<SourceAttributeName>Email</SourceAttributeName>
+					<TargetAttributeName>emailaddress1</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="84e66ef4-6b21-4ec2-9923-bb7a215cabd1">
+					<SourceAttributeName>Mailing City</SourceAttributeName>
+					<TargetAttributeName>address1_city</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="077fcb65-5cd4-4111-a475-8fba55dcbcbb">
+					<SourceAttributeName>Other Country</SourceAttributeName>
+					<TargetAttributeName>address2_country</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="9c4a61c0-4d4b-4eed-81d2-f7e3029e4383">
+					<SourceAttributeName>Email Bounced Date</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="5dfa8bc2-2ed5-48bf-9005-63910dcfedd5">
+					<SourceAttributeName>Birthdate</SourceAttributeName>
+					<TargetAttributeName>birthdate</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="3b532a66-c37d-4fb1-bc1f-5a9ee76e4d87">
+					<SourceAttributeName>Last Modified Alias</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="e377898b-1616-474e-8700-98db033b6e99">
+					<SourceAttributeName>Mailing Address Line 1</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="d585993b-e06c-46dd-ac28-1af50b6c2b2d">
+					<SourceAttributeName>Mailing Zip/Postal Code</SourceAttributeName>
+					<TargetAttributeName>address1_postalcode</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="01e4ec73-0312-499d-a8ca-9d94f70e3088">
+					<SourceAttributeName>Account Owner</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="d37f0d8b-3c4a-45df-92b1-ce73912690c7">
+					<SourceAttributeName>Other Address Line 2</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="1f1c75fe-8267-48e8-8583-77c8b0be1d97">
+					<SourceAttributeName>Fax Opt Out</SourceAttributeName>
+					<TargetAttributeName>donotfax</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="3e841b2d-4550-4c9c-b83a-1a7dd9f5436e">
+					<SourceAttributeName>Account Name</SourceAttributeName>
+					<TargetAttributeName>parentcustomerid</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+					<LookupMaps>
+						<LookupMap Id="32d3bf6b-9648-4929-9cae-02e8786b7fa0">
+							<LookupType>System</LookupType>
+							<LookupEntityName>account</LookupEntityName>
+							<LookupAttributeName>name</LookupAttributeName>
+							<ProcessCode>Process</ProcessCode>
+						</LookupMap>
+						<LookupMap Id="615a56ab-dd14-4b42-ad1a-29292a8faba2">
+							<LookupType>Source</LookupType>
+							<LookupEntityName>Account</LookupEntityName>
+							<LookupAttributeName>Account Name</LookupAttributeName>
+							<ProcessCode>Process</ProcessCode>
+						</LookupMap>
+					</LookupMaps>
+				</AttributeMap>
+				<AttributeMap Id="172a58bd-4fcf-4387-b76e-f01411e8fdef">
+					<SourceAttributeName>Other State/Province</SourceAttributeName>
+					<TargetAttributeName>address2_stateorprovince</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="8bc01ea6-38e5-4d73-bdfc-6bc26455386d">
+					<SourceAttributeName>Mailing Address Line 2</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="f77944c2-1d1b-42dc-a128-6b815c71d7a5">
+					<SourceAttributeName>Email Opt Out</SourceAttributeName>
+					<TargetAttributeName>donotemail</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="aad79631-12af-4b56-a040-0e02516c6671">
+					<SourceAttributeName>Last Stay-in-Touch Request Date</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="384eb7d1-bcd6-43ac-b7e4-53cca1b1ca20">
+					<SourceAttributeName>Description</SourceAttributeName>
+					<TargetAttributeName>description</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="c3cb0b35-78a3-45f4-a6cc-f3097d6ee13c">
+					<SourceAttributeName>Last Name</SourceAttributeName>
+					<TargetAttributeName>lastname</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="d0200889-f820-4caa-9997-8bd596ee4cc7">
+					<SourceAttributeName>Last Activity</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="d6769fb5-4588-46e2-9f02-1d30625dabfc">
+					<SourceAttributeName>Phone</SourceAttributeName>
+					<TargetAttributeName>telephone1</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="fcc37320-00a7-45a8-98a2-b30b552e1fb6">
+					<SourceAttributeName>Other Zip/Postal Code</SourceAttributeName>
+					<TargetAttributeName>address2_postalcode</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="b4cd3719-e84e-4537-b3ae-8f1ea097efda">
+					<SourceAttributeName>Do Not Call</SourceAttributeName>
+					<TargetAttributeName>donotphone</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="0b8b5416-17df-4d5a-a325-553346ace407">
+					<SourceAttributeName>Last Stay-in-Touch Save Date</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="bdf8e6eb-89a7-44b0-bed8-870bb361d8a0">
+					<SourceAttributeName>Other City</SourceAttributeName>
+					<TargetAttributeName>address2_city</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+			</AttributeMaps>
+			<TransformationMaps />
+		</EntityMap>
+		<EntityMap TargetEntityName="account" SourceEntityName="Account" Dedupe="Eliminate" Id="e11ddd45-fb3d-4e38-8959-c7838a212edd">
+			<AttributeMaps>
+				<AttributeMap Id="69bfd471-77d5-470e-b958-3d765566cc50">
+					<SourceAttributeName>Account: Created Date</SourceAttributeName>
+					<TargetAttributeName>overriddencreatedon</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="708a3962-1b14-486a-b2be-ccdc3c6a2b5f">
+					<SourceAttributeName>Account Owner Alias</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="8fbbe8fb-e0df-4925-85f7-f6e92eaf37dc">
+					<SourceAttributeName>Account Owner: Email</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="0a09a3d0-cf08-49c0-9655-8f365f56f8bb">
+					<SourceAttributeName>Billing Address Line 1</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="93403dfa-f4af-4161-9364-7fb0e32d3bb6">
+					<SourceAttributeName>Account Name</SourceAttributeName>
+					<TargetAttributeName>name</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="aec8d841-d6cd-4732-bbde-35228408c592">
+					<SourceAttributeName>Parent Account</SourceAttributeName>
+					<TargetAttributeName>parentaccountid</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+					<LookupMaps>
+						<LookupMap Id="d10bfb4d-5c67-40b4-86f2-45751d345913">
+							<LookupType>Source</LookupType>
+							<LookupEntityName>Account</LookupEntityName>
+							<LookupAttributeName>Account Name</LookupAttributeName>
+							<ProcessCode>Process</ProcessCode>
+						</LookupMap>
+						<LookupMap Id="d5f7c6f6-ba36-4587-b478-fa526237ee14">
+							<LookupType>System</LookupType>
+							<LookupEntityName>account</LookupEntityName>
+							<LookupAttributeName>name</LookupAttributeName>
+							<ProcessCode>Process</ProcessCode>
+						</LookupMap>
+					</LookupMaps>
+				</AttributeMap>
+				<AttributeMap Id="dc3d308e-2601-41b2-a4c6-27354c77083b">
+					<SourceAttributeName>Last Modified Date</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="03d5abcd-e570-4c38-bdc2-27f2795190a7">
+					<SourceAttributeName>Self-Service Last Login Date</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="148e2709-4f17-4e69-94cd-7ef79f73835e">
+					<SourceAttributeName>Shipping Address Line 1</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="f35f89ff-6fc8-480e-a42c-3a160bd41f06">
+					<SourceAttributeName>Account Owner</SourceAttributeName>
+					<TargetAttributeName>ownerid</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+					<LookupMaps>
+						<!--	SystemUser: System lookup on systemuserid(PK) and fullname(Primary Name).-->
+						<LookupMap>
+							<LookupType>System</LookupType>
+							<LookupEntityName>systemuser</LookupEntityName>
+							<LookupAttributeName>fullname</LookupAttributeName>
+							<ProcessCode>Process</ProcessCode>
+						</LookupMap>
+						<LookupMap>
+							<LookupType>System</LookupType>
+							<LookupEntityName>systemuser</LookupEntityName>
+							<LookupAttributeName>systemuserid</LookupAttributeName>
+							<ProcessCode>Process</ProcessCode>
+						</LookupMap>
+					</LookupMaps>
+				</AttributeMap>
+				<AttributeMap Id="998f0930-37dc-458d-85e6-084381c9f8ca">
+					<SourceAttributeName>Billing Street</SourceAttributeName>
+					<TargetAttributeName>address1_line1</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="242803a3-fe50-4925-a400-08c5ea331055">
+					<SourceAttributeName>Territory Name</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="4fe7a8b2-7121-40cc-a3ff-d5341a555532">
+					<SourceAttributeName>Account Description</SourceAttributeName>
+					<TargetAttributeName>description</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="3bb40bc4-cbbb-4c18-914d-14f8a2ea0477">
+					<SourceAttributeName>Website</SourceAttributeName>
+					<TargetAttributeName>websiteurl</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="74306604-1186-4de8-a62f-bc268b5df2a3">
+					<SourceAttributeName>Billing City</SourceAttributeName>
+					<TargetAttributeName>address1_city</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="7adc55d6-6360-4936-bed3-1d69fbe1ec02">
+					<SourceAttributeName>SIC Code</SourceAttributeName>
+					<TargetAttributeName>sic</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="dacc27c1-6fcb-4930-aa55-bf8952d43a23">
+					<SourceAttributeName>Billing Country</SourceAttributeName>
+					<TargetAttributeName>address1_country</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="3927f9bb-13af-45a1-826f-e5a79b4ff200">
+					<SourceAttributeName>Rating</SourceAttributeName>
+					<TargetAttributeName>accountratingcode</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="2010d853-f738-4a42-b6a0-f8c0f1400cae">
+					<SourceAttributeName>Shipping Zip/Postal Code</SourceAttributeName>
+					<TargetAttributeName>address2_postalcode</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="91095498-3f89-4f81-aafe-6ab0d8bfbdac">
+					<SourceAttributeName>Billing Address Line 3</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="172bc996-847d-4341-9f88-1a51887721be">
+					<SourceAttributeName>Parent Account ID</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="88f0198f-eda6-49ae-b1f7-1b497eed7b30">
+					<SourceAttributeName>Type</SourceAttributeName>
+					<TargetAttributeName>customertypecode</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+					<PicklistMaps>
+						<PicklistMap Id="70bc2e9f-f3c4-4aab-a019-9774f4883e3b">
+							<SourceValue>Prospect</SourceValue>
+							<TargetValue>8</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="50e16818-52a0-4c9d-9b59-3732d92b180f">
+							<SourceValue>Reseller</SourceValue>
+							<TargetValue>9</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="e6728e9f-9cc3-4909-8a1d-e685cf8c719c">
+							<SourceValue>Competitor</SourceValue>
+							<TargetValue>1</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="3909a6ea-852c-4ede-b746-5c9baa149057">
+							<SourceValue>Partner</SourceValue>
+							<TargetValue>5</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="1d467ad3-0db8-47f8-aa98-8d26313b1370">
+							<SourceValue>Investor</SourceValue>
+							<TargetValue>4</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="1fa26e72-c2de-4db3-9bab-f061d82f555e">
+							<SourceValue>Other</SourceValue>
+							<TargetValue>12</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="24c702da-8005-483f-94de-c3adfbd2473f">
+							<SourceValue>Press</SourceValue>
+							<TargetValue>7</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="b26d65f7-b765-4cc7-99a0-8ffb29d26a5b">
+							<SourceValue>Customer</SourceValue>
+							<TargetValue>3</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+					</PicklistMaps>
+				</AttributeMap>
+				<AttributeMap Id="b8d38d51-d2bb-459c-bcfd-609494963101">
+					<SourceAttributeName>Employees</SourceAttributeName>
+					<TargetAttributeName>numberofemployees</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="08bc9cfa-b7f1-46d3-85ad-85df18f01fd6">
+					<SourceAttributeName>Account ID</SourceAttributeName>
+					<TargetAttributeName>accountid</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="41da7ad9-ed8d-4123-8f1a-04e46d685c7d">
+					<SourceAttributeName>Shipping Address Line 2</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="cc23c96b-a067-46ec-80e4-c9b7c4a61feb">
+					<SourceAttributeName>Shipping Street</SourceAttributeName>
+					<TargetAttributeName>address2_line1</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="289a1d1f-9f32-4529-a081-00b5e470681d">
+					<SourceAttributeName>Shipping Address Line 3</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="2413e140-6fa5-42c5-ade2-9c5437e40b30">
+					<SourceAttributeName>Shipping State/Province</SourceAttributeName>
+					<TargetAttributeName>address2_stateorprovince</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="39fce300-a00c-413e-8bdc-ed2a9d6bae4a">
+					<SourceAttributeName>Ownership</SourceAttributeName>
+					<TargetAttributeName>ownershipcode</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+					<PicklistMaps>
+						<PicklistMap Id="5fa2486d-66cd-4597-b095-ddf6b2197285">
+							<SourceValue>Public</SourceValue>
+							<TargetValue>1</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="0fafb135-b4c1-47f7-a838-56922bc75785">
+							<SourceValue>Other</SourceValue>
+							<TargetValue>4</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="a6229e3d-37e9-41ba-a00c-3b6b2a2049b6">
+							<SourceValue>Subsidiary</SourceValue>
+							<TargetValue>3</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="5492c72a-cd65-4137-a8ba-9d4a7bcaddd1">
+							<SourceValue>Private</SourceValue>
+							<TargetValue>2</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+					</PicklistMaps>
+				</AttributeMap>
+				<AttributeMap Id="d96afc4b-be14-48e6-bf6d-84f45fa3fb54">
+					<SourceAttributeName>Account Site</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="606fffd4-ee78-4bc2-93ff-3cbff436d8c0">
+					<SourceAttributeName>Created By</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="5ef275a9-d564-4564-a854-cfdf2b874005">
+					<SourceAttributeName>Billing Address Line 2</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="42192075-5b7a-4cc4-b89a-8a036e397654">
+					<SourceAttributeName>Annual Revenue</SourceAttributeName>
+					<TargetAttributeName>revenue</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="9f93d933-525d-4c1f-b0b6-a7154fde0385">
+					<SourceAttributeName>Last Modified Alias</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="9e1b798a-1e3b-45d2-8475-24559653355c">
+					<SourceAttributeName>Created Alias</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="e046aece-038b-40bc-85b6-af211a1a6ff3">
+					<SourceAttributeName>Parent Account Site</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="9f616fad-8f49-43f5-9238-b64bae3606fe">
+					<SourceAttributeName>Last Modified By</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="e0394208-b2db-4d01-888d-488143c246a0">
+					<SourceAttributeName>Shipping City</SourceAttributeName>
+					<TargetAttributeName>address2_city</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="b0396cc8-b2e4-4f92-a421-960125fdd66b">
+					<SourceAttributeName>Billing State/Province</SourceAttributeName>
+					<TargetAttributeName>address1_stateorprovince</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="7e9a89a8-6d69-4f17-ab42-716e88bb7673">
+					<SourceAttributeName>Shipping Country</SourceAttributeName>
+					<TargetAttributeName>address2_country</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="93133076-7c14-4b93-9587-a4ed894ba5c1">
+					<SourceAttributeName>Ticker Symbol</SourceAttributeName>
+					<TargetAttributeName>tickersymbol</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="767d4efa-4da8-4e1a-a9d2-014cb6a54de5">
+					<SourceAttributeName>Account Number</SourceAttributeName>
+					<TargetAttributeName>accountnumber</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="9ba8cbe0-cd03-4bb3-9237-cfe97427c8dc">
+					<SourceAttributeName>Billing Zip/Postal Code</SourceAttributeName>
+					<TargetAttributeName>address1_postalcode</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="f034db8b-6782-4ee6-9791-dc5a31124ef9">
+					<SourceAttributeName>Self-Service Enabled</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="1aef799c-f529-4027-851d-3412f603879d">
+					<SourceAttributeName>Industry</SourceAttributeName>
+					<TargetAttributeName>industrycode</TargetAttributeName>
+					<ProcessCode>Process</ProcessCode>
+					<PicklistMaps>
+						<PicklistMap Id="693a2bfa-d14a-419f-b032-82cbf5ff4148">
+							<SourceValue>Insurance</SourceValue>
+							<TargetValue>20</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="bbf8ed44-cd43-4976-94d8-b8143cedda63">
+							<SourceValue>Consulting</SourceValue>
+							<TargetValue>7</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+						<PicklistMap Id="84cd1598-cb32-49d4-90ed-42c559571752">
+							<SourceValue>Transportation</SourceValue>
+							<TargetValue>30</TargetValue>
+							<ProcessCode>Process</ProcessCode>
+						</PicklistMap>
+					</PicklistMaps>
+				</AttributeMap>
+				<AttributeMap Id="4c0852fb-30ed-431d-ade9-4b6e70e6cb34">
+					<SourceAttributeName>Last Activity</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+				<AttributeMap Id="315114a4-7892-4ad5-a74d-78627d01c7df">
+					<SourceAttributeName>Owner Role</SourceAttributeName>
+					<TargetAttributeName />
+					<ProcessCode>Ignore</ProcessCode>
+				</AttributeMap>
+			</AttributeMaps>
+			<TransformationMaps />
+		</EntityMap>
+	</EntityMaps>
+</Map>
+

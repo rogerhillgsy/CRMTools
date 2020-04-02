@@ -1,0 +1,409 @@
+﻿<!DOCTYPE HTML>
+<!--
+This file is part of the Microsoft Dynamics CRM SDK code samples.
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+This source code is intended only as a supplement to Microsoft
+Development Tools and/or on-line documentation.  See these other
+materials for detailed information regarding Microsoft code samples.
+
+THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+PARTICULAR PURPOSE.
+-->
+<!--<snippetAssignAccounts>-->
+<html lang="en-us">
+<head>
+ <title>Assign Accounts Page</title>
+ <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+ <style type="text/css">
+  body
+  {
+   font-family: Segoe UI;
+   background-color: #EFF2F6;
+  }
+  .dataTable
+  {
+   border-collapse: collapse;
+   border: 1px solid black;
+  }
+  .tableHead
+  {
+   background-color: #C0C0C0;
+   width: 100%;
+  }
+  .grid
+  {
+   border-bottom: 1px solid black;
+  }
+  td
+  {
+   padding-left: 5px;
+   padding-right: 5px;
+  }
+  #accountList
+  {
+   background-color: White;
+  }
+  #checkboxCol
+  {
+   border-right: 1px solid black;
+   width: 20px;
+  }
+  #nameCol
+  {
+   border-right: 1px solid black;
+   width: 300px;
+  }
+  #ownerCol
+  {
+   width: 300px;
+  }
+ </style>
+ <script src="../ClientGlobalContext.js.aspx" type="text/javascript"></script>
+ <script src="Scripts/SDK.REST.js" type="text/javascript"></script>
+ <script src="Scripts/SDK.SOAPSample.Assign.js" type="text/javascript"></script>
+ <script type="text/javascript">
+  //Set variables for page elements
+  var userSelect; //The select control used to select the user to assign records to.
+  var accountList; //The tbody element that rows will be added to for each retrieved account
+  var selectAll; //The checkbox to select all the retrieved accounts
+  var btnAssign; //The button to assign assign the accounts
+  var tableCaption; //A label hidden on load
+  var dataTable; //the table element hidden on load
+  var alertFlag; // Alert flag to indicate the changes
+  var users = []; //SystemUser records retrieved
+  var accounts = []; //Accounts not assigned to the currently selected user.
+  var accountsToShow = 5;
+  var suppressRetrievedAccountsAlert = false;
+  var accountsToAssign = [];
+  var userId = null;
+
+  function startSample() {
+   ///<summary>
+   /// Starts the sample
+   ///</summary>
+   alertFlag = document.getElementById("dispalert");
+   userSelect = document.getElementById("userList");
+   //A new set of a 5 accounts will be retrieved when the user changes
+   userSelect.onchange = getAccounts;
+
+   accountList = document.getElementById("accountList");
+   selectAll = document.getElementById("selectAll");
+   //When the select all checkbox is clicked, toggle the selection for each row of the table.
+   selectAll.onclick = toggleSelectAllRecords;
+   btnAssign = document.getElementById("btnAssign");
+   //Add a helper function to enable or disable the assign button.
+   btnAssign.setEnabled = setEnabled;
+   //Set the event handler to the Assign button
+   btnAssign.onclick = assignAccounts;
+   tableCaption = document.getElementById("tableCaption");
+   dataTable = document.getElementById("dataTable");
+   var divSample = document.getElementById("divSample");
+   //Load the list of users
+   getUsers();
+   divSample.style.display = "block";
+
+   document.getElementById("btnStart").setAttribute("disabled", "disabled");
+
+  }
+  function getUsers() {
+   SDK.REST.retrieveMultipleRecords("SystemUser",
+   "$select=FullName,SystemUserId&$filter=FullName ne 'INTEGRATION' and FullName ne 'SYSTEM'",
+   function (results) {
+    for (var i = 0; i < results.length; i++) {
+     users.push(results[i]);
+    }
+   },
+   function (error) {
+    showMessage(error.message);
+   },
+   function () {
+    if (users.length > 1) {
+     for (var i = 0; i < users.length; i++) {
+      var user = users[i];
+      userSelect.options[i + 1] = new Option(user.FullName, user.SystemUserId);
+     }
+     userSelect.removeAttribute("disabled");
+
+     if (alertFlag.checked == true) {
+      alert(users.length + " system users retrieved");
+     }
+
+    }
+    else {
+     var notification = "This sample requires that more than one user is available in the organization.";
+     showMessage(notification);
+     if (alertFlag.checked == true) {
+      alert("This sample requires that more than one user is available in the organization.");
+     }
+
+    }
+   });
+  }
+  function getAccounts() {
+   //Clear out any records displayed in the table
+   clearAccountList();
+   var selectedUserId = userSelect.options[userSelect.selectedIndex].value;
+   if (selectedUserId != "none") {
+
+    SDK.REST.retrieveMultipleRecords("Account",
+    "$top=" + accountsToShow + "&$select=AccountId,Name,OwnerId&$filter=OwnerId/Id ne (guid'" + encodeURIComponent(selectedUserId) + "')",
+    function (results) {
+     accounts.length = 0;
+     for (var i = 0; i < results.length; i++) {
+      accounts.push(results[i]);
+     }
+    },
+    function (error) {
+     showMessage(error.message);
+    },
+    function () {
+     //onComplete
+     if (accounts.length > 0) {
+
+      for (var i = 0; i < accounts.length; i++) {
+       var account = accounts[i];
+
+       var row = document.createElement("tr");
+       row.setAttribute("class", "grid");
+       row.setAttribute("id", account.AccountId);
+       var checkboxCell = document.createElement("td");
+       var checkbox = document.createElement("input");
+       checkbox.setAttribute("type", "checkbox");
+       checkbox.onclick = validateAssignButton;
+       checkboxCell.appendChild(checkbox);
+       row.appendChild(checkboxCell);
+       var nameCell = document.createElement("td");
+       setText(nameCell, account.Name);
+       row.appendChild(nameCell);
+       var userNameCell = document.createElement("td");
+       setText(userNameCell, account.OwnerId.Name);
+       row.appendChild(userNameCell);
+       accountList.appendChild(row);
+
+
+
+      }
+
+      if (alertFlag.checked == true && !suppressRetrievedAccountsAlert) {
+       alert(accounts.length + " account records retrieved.");
+       suppressRetrievedAccountsAlert = false;
+
+      }
+     }
+     else {
+      //If no records are returned display a message.
+      clearAccountList();
+      var row = document.createElement("tr");
+      var cell = document.createElement("td");
+      cell.setAttribute("colSpan", "3");
+      setText(cell, "No Accounts were retrieved");
+      row.appendChild(cell);
+      accountList.appendChild(row);
+
+     }
+     //Show any of the UI elements that are initially hidden
+     setVisibleUIElements(true);
+    });
+   }
+   else { setVisibleUIElements(false); }
+  }
+  function assignAccounts() {
+   ///<summary>
+   /// queues the selected accounts to be assigned sequentially
+   ///</summary>
+   userId = userSelect.options[userSelect.selectedIndex].value;
+
+   var checkboxes = accountList.getElementsByTagName("input");
+   for (var i = checkboxes.length - 1; i >= 0; i--) {
+    if (checkboxes[i].checked) {
+     var accountId = checkboxes[i].parentElement.parentElement.id;
+     accountsToAssign.push(accountId);
+    }
+   }
+   assignNextAccount();
+   selectAll.checked = false;
+  }
+  function assignNextAccount() {
+   /// <summary>Assigns the queued accounts</summary>
+   //Prevents a generic SQL error that can occur when too many assign requests occur in rapid succession
+   if (accountsToAssign.length > 0) {
+    SDK.SOAPSamples.assignRequest(userId, accountsToAssign.shift(), "account", function () {
+     assignNextAccount();
+    }, function (error) {
+     showMessage("There was an error assigning the account with Id :" + accountId + ". The error message is " + error.message + ".");
+     assignNextAccount();
+    });
+
+   }
+   else {
+    suppressRetrievedAccountsAlert = true;
+    getAccounts();
+    btnAssign.setEnabled(false)
+    if (alertFlag.checked == true) {
+     alert("Record assignment completed and next set of records retrieved.");
+    }
+   }
+
+
+  }
+  function showMessage(message) {
+   ///<summary>
+   /// Helper function to display message on the page if necessary.
+   ///</summary
+   var dvMessage = document.createElement("div");
+   dvMessage.innerHTML = SDK.SOAPSamples._xmlEncode(message);
+   document.getElementById("status").appendChild(dvMessage);
+  }
+  function clearAccountList() {
+   ///<summary>
+   /// Helper function remove rows from the Account List table.
+   ///</summary
+   for (var i = (accountList.rows.length - 1) ; i >= 0; i--) {
+    accountList.deleteRow(i);
+   }
+   accounts.length = 0;
+
+  }
+  function toggleSelectAllRecords() {
+   ///<summary>
+   /// Helper function to toggle all selected rows in the account list table.
+   ///</summary
+   var checkboxes = accountList.getElementsByTagName("input");
+   for (var i = 0; i < checkboxes.length; i++) {
+    checkboxes[i].checked = this.checked;
+   }
+   btnAssign.setEnabled(this.checked);
+
+  }
+  function validateAssignButton() {
+   ///<summary>
+   /// Helper function to enable the Assign Records button when rows are selected.
+   ///</summary
+   if (this.checked == true)
+   { btnAssign.setEnabled(true); }
+   else {
+    selectAll.checked = false;
+    var checkboxes = accountList.getElementsByTagName("input");
+    var checked = false;
+    for (var i = 0; i < checkboxes.length; i++) {
+     if (checkboxes[i].checked == true) {
+      checked = true;
+      break;
+     }
+    }
+    btnAssign.setEnabled(checked);
+   }
+  }
+  function setEnabled(bool) {
+   ///<summary>
+   /// Helper method attached to the Assign button to make it easier to enable/disable the button.
+   ///</summary
+   if (bool)
+   { this.removeAttribute("disabled"); }
+   else
+   { this.setAttribute("disabled", "disabled"); }
+  }
+  function setVisibleUIElements(display) {
+   ///<summary>
+   /// Helper function to show those UI elements initially hidden.
+   ///</summary
+   if (display) {
+    show(tableCaption);
+    show(dataTable);
+    show(btnAssign);
+   }
+   else {
+    hide(tableCaption);
+    hide(dataTable);
+    hide(btnAssign);
+   }
+
+  }
+  function show(element) {
+   if (element.tagName.toLowerCase() == "table") {
+    element.style.display = "table";
+   }
+   else {
+    element.style.display = "block";
+   }
+
+  }
+  function hide(element) {
+   element.style.display = "none";
+  }
+  // setText  mitigate differences in how browsers set or get text content.
+  function setText(node, text) {
+   if (typeof (node.innerText) != "undefined") {
+    node.innerText = text;
+   }
+   else {
+    node.textContent = text;
+   }
+
+  }
+
+ </script>
+</head>
+<body>
+ <h1>
+  Assign Accounts Sample
+ </h1>
+ <p>
+  This page requires JavaScript and will update dynamically.
+ </p>
+ <p>
+  <input id="dispalert" name="dispalert" type="checkbox" value="alert" /><label for="dispalert">Display alert window when data changes.</label>
+ </p>
+ <p>
+  Click the <b>Start</b> button to begin the sample.
+ </p>
+ <input type="button" id="btnStart" name="btnStart" value="Start" onclick="startSample()" />
+ <div id="divSample" style="display: none">
+  <label for="userList">
+   User:
+  </label>
+  <select id="userList" name="userList" title="Select a system user from this list." disabled>
+   <option value="none">Select a User...</option>
+  </select>
+  <p id="tableCaption" style="display: none;">
+   Top 5 Accounts not assigned to the selected user:
+  </p>
+  <table class="dataTable" id="dataTable" style="display: none; width: 100%;">
+   <thead>
+    <tr class="tableHead">
+     <th scope="col" id="checkboxCol">
+      <input id="selectAll" name="selectAll" title="Select this to select all records" type="checkbox" /><label for="selectAll">Select&nbsp;All</label>
+     </th>
+     <th scope="col" id="nameCol">
+      Name
+     </th>
+     <th scope="col" id="ownerCol">
+      Owner
+     </th>
+    </tr>
+   </thead>
+   <tbody id="accountList"></tbody>
+  </table>
+  <label style="display: none;" for="btnAssign">
+   Click to assign selected records
+  </label>
+  <button id="btnAssign" name="btnAssign" disabled style="display: none; float: right;">
+   Assign Records
+  </button>
+  <label style="display: none;" for="btnAssign">
+   Click to assign selected records
+  </label>
+  <button id="Button1" name="btnAssign" disabled style="display: none; float: right;">
+   Assign Records
+  </button>
+ </div>
+ <div id="status">
+  &nbsp;
+ </div>
+</body>
+</html>
+<!--</snippetAssignAccounts>-->

@@ -1,9 +1,0 @@
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\Lead\bin\Debug\Lead.exe.config
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\Lead\bin\Debug\Lead.exe
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\Lead\bin\Debug\Lead.pdb
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\Lead\bin\Debug\Microsoft.Crm.Sdk.Proxy.dll
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\Lead\bin\Debug\Microsoft.Xrm.Sdk.dll
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\Lead\obj\Debug\Lead.csproj.CoreCompileInputs.cache
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\Lead\obj\Debug\Lead.csproj.CopyComplete
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\Lead\obj\Debug\Lead.exe
-C:\Sreenath\Source Code\MultiSelectApp\Separate Exe\ArupMultiSelectConsoleApp\Lead\obj\Debug\Lead.pdb
