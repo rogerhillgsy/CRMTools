@@ -43,6 +43,8 @@ namespace CRMAPIConfiguration
                 IOrganizationService service = CreateService(serverUrl, userName, password, domain);
                 //IOrganizationService service = CreateService("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
                 UpdateCRMapiconfiguration(service);
+
+                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "End Time : " + DateTime.Now, "", "", ""));
             }
             catch (Exception ex)
             {

@@ -18,11 +18,32 @@ using System.Configuration;
 using System.Collections.Specialized;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.Services.AppAuthentication;
 
 namespace ArupMultiSelect
 {
-    public class Program
+    public class Program : IConfig
     {
+        private static string _keyVaultPath;
+        private static string _CRMHubPWKey = String.Empty;
+        private static Task<string> _CRMHubPWTask;
+
+        string IConfig.KeyVaultPath => KeyVaultPath;
+
+
+        public static string KeyVaultPath
+        {
+            get
+            {
+                if (String.IsNullOrEmpty(_keyVaultPath))
+                {
+                    _keyVaultPath = ConfigurationManager.AppSettings.Get("KeyVaultPath");
+                }
+
+                return _keyVaultPath;
+            }
+        }
         static List<string> linesInFailedFile = null;
         static string fileName = "FailedRecordsFile" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".csv";
         static int StartPageNumber = 0;
@@ -32,6 +53,7 @@ namespace ArupMultiSelect
         {
             try
             {
+                _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
                 Console.WriteLine("Start time:" + DateTime.Now);
                 linesInFailedFile = new List<string>();
                 linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
@@ -318,6 +340,51 @@ namespace ArupMultiSelect
                 }
             }
             return dic;
+        }
+
+
+
+        public static async Task<string> GetSecretTask(string secretName, Action<string> callback)
+        {
+            try
+            {
+                var azureServiceTokenprovider = new AzureServiceTokenProvider();
+                var keyVaultClient =
+                    new KeyVaultClient(
+                        new KeyVaultClient.AuthenticationCallback(azureServiceTokenprovider.KeyVaultTokenCallback));
+                //Log($"Accessing Key vault path {KeyVaultPath.TrimEnd("/".ToCharArray())}/secrets/{secretName}");
+                var result = String.Empty;
+
+                var getSecretTask = keyVaultClient
+                    .GetSecretAsync($"{KeyVaultPath.TrimEnd("/".ToCharArray())}/secrets/{secretName}").ContinueWith(t =>
+                    {
+                        if (t.IsFaulted)
+                        {
+                            //Log($"GetSecretTask failed : {t.Exception.Message}");
+                            foreach (var exception in t.Exception.InnerExceptions)
+                            {
+                                //Log($"  {exception.Message}");
+                            }
+                        }
+                        else
+                        {
+                            result = t.Result.Value;
+                            callback?.Invoke(t.Result.Value);
+                        }
+                    }
+                    );
+                await getSecretTask;
+
+                // example: - "https://crmcloudkeys.vault.azure.net/secrets/oracle-test-connection"
+
+                //Log($"Obtained secret \"{secretName}\" from keyvault");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                //Log($"Failed to get secret ${secretName} message: {ex.Message}");
+                throw;
+            }
         }
     }
 }
