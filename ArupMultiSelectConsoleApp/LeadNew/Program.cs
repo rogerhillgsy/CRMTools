@@ -20,9 +20,8 @@ using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
-using ArupMultiSelect;
 
-namespace CloseOpportunityReasons
+namespace LeadNew
 {
     class Program : IConfig
     {
@@ -68,7 +67,7 @@ namespace CloseOpportunityReasons
             {
                 _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
                 _CRMHubPWTask.Wait();
-                Console.WriteLine("Close Opportunity Reasons records Processing Statred. Start time:" + DateTime.Now);
+                Console.WriteLine("Lead records Processing Statred. Start time:" + DateTime.Now);
                 linesInFailedFile = new List<string>();
                 linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "Start Time : " + DateTime.Now, "", "", ""));
@@ -81,8 +80,7 @@ namespace CloseOpportunityReasons
                 RecordCountPerPage = Convert.ToInt32(ConfigurationManager.AppSettings["RecordCountPerPage"]);
                 IOrganizationService service = CreateService(serverUrl, userName, password, domain);
                 //IOrganizationService service = CreateService("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
-                UpdateCloseopportunityreason(service);
-
+                UpdateLead(service);
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "End Time : " + DateTime.Now, "", "", ""));
             }
             catch (Exception ex)
@@ -93,6 +91,52 @@ namespace CloseOpportunityReasons
             finally
             {
                 System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+            }
+        }
+
+        public static async Task<string> GetSecretTask(string secretName, Action<string> callback)
+        {
+            try
+            {
+                var azureServiceTokenprovider = new AzureServiceTokenProvider();
+                var keyVaultClient =
+                    new KeyVaultClient(
+                        new KeyVaultClient.AuthenticationCallback(azureServiceTokenprovider.KeyVaultTokenCallback));
+                //Log($"Accessing Key vault path {KeyVaultPath.TrimEnd("/".ToCharArray())}/secrets/{secretName}");
+                var result = String.Empty;
+
+                var getSecretTask = keyVaultClient
+                    .GetSecretAsync($"{KeyVaultPath.TrimEnd("/".ToCharArray())}/secrets/{secretName}").ContinueWith(t =>
+                    {
+                        if (t.IsFaulted)
+                        {
+                            //Log($"GetSecretTask failed : {t.Exception.Message}");
+                            foreach (var exception in t.Exception.InnerExceptions)
+                            {
+                                //Log($"  {exception.Message}");
+                            }
+                        }
+                        else
+                        {
+                            result = t.Result.Value;
+                            callback?.Invoke(t.Result.Value);
+                            password = t.Result.Value;
+                            //processRecords();
+                            //callback.Invoke()
+                        }
+                    }
+                    );
+                await getSecretTask;
+
+                // example: - "https://crmcloudkeys.vault.azure.net/secrets/oracle-test-connection"
+
+                //Log($"Obtained secret \"{secretName}\" from keyvault");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                //Log($"Failed to get secret ${secretName} message: {ex.Message}");
+                throw;
             }
         }
 
@@ -140,20 +184,18 @@ namespace CloseOpportunityReasons
 
         #endregion
 
-
-
         #region Update Opportunity
-        public static void UpdateCloseopportunityreason(IOrganizationService service)
+        public static void UpdateLead(IOrganizationService service)
         {
             QueryExpression test = new QueryExpression();
 
-            QueryExpression query = new QueryExpression("arup_closeopportunityreason");
+            QueryExpression query = new QueryExpression("lead");
             //query.ColumnSet = new ColumnSet("ccrm_businessinterestpicklistname", "ccrm_businessinterestpicklistvalue", "arup_businessinterest");
-            query.ColumnSet.AddColumns("arup_lostopportunityreasonvalues", "arup_wonopportunityreasonvalues");
+            query.ColumnSet.AddColumns("ccrm_othernetworksval", "arup_projectsectorvalue");
             query.Criteria = new FilterExpression();
             query.Criteria.FilterOperator = LogicalOperator.Or;
-            query.Criteria.AddCondition("arup_lostopportunityreasonvalues", ConditionOperator.NotNull);
-            query.Criteria.AddCondition("arup_wonopportunityreasonvalues", ConditionOperator.NotNull);
+            query.Criteria.AddCondition("ccrm_othernetworksval", ConditionOperator.NotNull);
+            query.Criteria.AddCondition("arup_projectsectorvalue", ConditionOperator.NotNull);
             query.PageInfo = new PagingInfo();
             query.PageInfo.Count = RecordCountPerPage;
             query.PageInfo.PageNumber = StartPageNumber;
@@ -164,9 +206,9 @@ namespace CloseOpportunityReasons
             {
                 final.Entities.Add(i);
                 UpdateLeadMultiSelect(service,
-                    i.GetAttributeValue<Guid>("arup_closeopportunityreasonid"),
-                    i.GetAttributeValue<string>("arup_lostopportunityreasonvalues"),
-                    i.GetAttributeValue<string>("arup_wonopportunityreasonvalues"));
+                    i.GetAttributeValue<Guid>("leadid"),
+                    i.GetAttributeValue<string>("ccrm_othernetworksval"),
+                    i.GetAttributeValue<string>("arup_projectsectorvalue"));
             }
             do
             {
@@ -177,33 +219,32 @@ namespace CloseOpportunityReasons
                 {
                     final.Entities.Add(i);
                     UpdateLeadMultiSelect(service,
-                    i.GetAttributeValue<Guid>("arup_closeopportunityreasonid"),
-                    i.GetAttributeValue<string>("arup_lostopportunityreasonvalues"),
-                    i.GetAttributeValue<string>("arup_wonopportunityreasonvalues"));
+                   i.GetAttributeValue<Guid>("leadid"),
+                   i.GetAttributeValue<string>("ccrm_othernetworksval"),
+                   i.GetAttributeValue<string>("arup_projectsectorvalue"));
                 }
-
-                Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + " Close Opportunity Reasons Records processed at : " + DateTime.Now);
+                Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + " Lead Records processed at : " + DateTime.Now);
                 System.IO.File.WriteAllLines(fileName, linesInFailedFile);
                 if (query.PageInfo.PageNumber == EndPageNumber)
                     break;
             }
             while (entityCollection.MoreRecords);
-            Console.WriteLine("Total Close Opportunity Reasons record count:" + RecordCountPerPage * EndPageNumber);
-            Console.WriteLine("Close Opportunity Reasons records Processing Completed. End time:" + DateTime.Now);
+            Console.WriteLine("Total Lead record count:" + RecordCountPerPage * EndPageNumber);
+            Console.WriteLine("Lead records Processing Completed. End time:" + DateTime.Now);
             Console.ReadKey();
         }
 
         //ccrm_othernetworksval", "ccrm_servicesvalue", "ccrm_theworksvalue", "ccrm_disciplinesvalue", "ccrm_projectsectorvalue"
-        public static void UpdateLeadMultiSelect(IOrganizationService service, Guid arup_closeopportunityreasonid, string arup_lostopportunityreasonvalues, string arup_wonopportunityreasonvalues)
+        public static void UpdateLeadMultiSelect(IOrganizationService service, Guid leadid, string ccrm_othernetworksval, string arup_projectsectorvalue)
         {
             try
             {
-                Entity opportunity = new Entity("arup_closeopportunityreason");
-                if (arup_lostopportunityreasonvalues != string.Empty && arup_lostopportunityreasonvalues != null)
+                Entity opportunity = new Entity("lead");
+                if (ccrm_othernetworksval != string.Empty && ccrm_othernetworksval != null)
                 {
-                    Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "arup_closeopportunityreason", "arup_lostopportunityreasonslist");
+                    Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "lead", "ccrm_othernetworks");
                     OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
-                    string[] arr = arup_lostopportunityreasonvalues.Split(',');
+                    string[] arr = ccrm_othernetworksval.Split(',');
                     foreach (var item in arr)
                     {
                         if (item != null && item.Trim() != string.Empty && item.Trim() != "")
@@ -215,13 +256,13 @@ namespace CloseOpportunityReasons
                         }
                     }
 
-                    opportunity["arup_lostreasons"] = collectionOptionSetValues;
+                    opportunity["arup_globalservices"] = collectionOptionSetValues;
                 }
-                if (arup_wonopportunityreasonvalues != string.Empty && arup_wonopportunityreasonvalues != null)
+                if (arup_projectsectorvalue != string.Empty && arup_projectsectorvalue != null)
                 {
-                    Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "arup_closeopportunityreason", "arup_wonopportunityreasonslist");
+                    Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "lead", "arup_projectsectorpicklist");
                     OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
-                    string[] arr = arup_wonopportunityreasonvalues.Split(',');
+                    string[] arr = arup_projectsectorvalue.Split(',');
                     foreach (var item in arr)
                     {
                         if (item != null && item.Trim() != string.Empty && item.Trim() != "")
@@ -233,19 +274,19 @@ namespace CloseOpportunityReasons
                         }
                     }
 
-                    opportunity["arup_wonreasons"] = collectionOptionSetValues;
+                    opportunity["arup_projectsector_ms"] = collectionOptionSetValues;
                 }
 
-                opportunity.Id = arup_closeopportunityreasonid;
+                opportunity.Id = leadid;
                 service.Update(opportunity);
             }
             catch (Exception e)
             {
                 Console.WriteLine("Error : " + e.Message);
                 //linesInFailedFile.Add("RecordId,ToOptionset,Values,Message");
-                string optionSetValues = "arup_lostreasons : " + arup_lostopportunityreasonvalues + " | arup_wonreasons : " + arup_wonopportunityreasonvalues;
+                string optionSetValues = "arup_globalservices : " + ccrm_othernetworksval + " | arup_projectsector_ms : " + arup_projectsectorvalue;
 
-                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "arup_closeopportunityreason", arup_closeopportunityreasonid, e.Message, optionSetValues));
+                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "Lead", leadid, e.Message, optionSetValues));
             }
         }
 
@@ -295,51 +336,5 @@ namespace CloseOpportunityReasons
             return dic;
         }
         #endregion
-
-        public static async Task<string> GetSecretTask(string secretName, Action<string> callback)
-        {
-            try
-            {
-                var azureServiceTokenprovider = new AzureServiceTokenProvider();
-                var keyVaultClient =
-                    new KeyVaultClient(
-                        new KeyVaultClient.AuthenticationCallback(azureServiceTokenprovider.KeyVaultTokenCallback));
-                //Log($"Accessing Key vault path {KeyVaultPath.TrimEnd("/".ToCharArray())}/secrets/{secretName}");
-                var result = String.Empty;
-
-                var getSecretTask = keyVaultClient
-                    .GetSecretAsync($"{KeyVaultPath.TrimEnd("/".ToCharArray())}/secrets/{secretName}").ContinueWith(t =>
-                    {
-                        if (t.IsFaulted)
-                        {
-                            //Log($"GetSecretTask failed : {t.Exception.Message}");
-                            foreach (var exception in t.Exception.InnerExceptions)
-                            {
-                                //Log($"  {exception.Message}");
-                            }
-                        }
-                        else
-                        {
-                            result = t.Result.Value;
-                            callback?.Invoke(t.Result.Value);
-                            password = t.Result.Value;
-                            //processRecords();
-                            //callback.Invoke()
-                        }
-                    }
-                    );
-                await getSecretTask;
-
-                // example: - "https://crmcloudkeys.vault.azure.net/secrets/oracle-test-connection"
-
-                //Log($"Obtained secret \"{secretName}\" from keyvault");
-                return result;
-            }
-            catch (Exception ex)
-            {
-                //Log($"Failed to get secret ${secretName} message: {ex.Message}");
-                throw;
-            }
-        }
     }
 }

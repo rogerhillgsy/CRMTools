@@ -32,6 +32,7 @@ namespace ArupMultiSelect
         string IConfig.KeyVaultPath => KeyVaultPath;
 
 
+
         public static string KeyVaultPath
         {
             get
@@ -44,23 +45,55 @@ namespace ArupMultiSelect
                 return _keyVaultPath;
             }
         }
+
+        public string CRMHubPWKey
+        {
+            get
+            {
+                _CRMHubPWTask.Wait();
+                return _CRMHubPWKey;
+            }
+        }
         static List<string> linesInFailedFile = null;
         static string fileName = "FailedRecordsFile" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".csv";
         static int StartPageNumber = 0;
         static int EndPageNumber = 0;
         static int RecordCountPerPage = 0;
+        static string password = string.Empty;
+
         public static void Main(string[] args)
         {
             try
             {
                 _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
+                _CRMHubPWTask.Wait();
+                processRecords();
+                //Console.WriteLine("Wait start");
+                //System.Threading.Thread.Sleep(10000);
+                //Console.WriteLine("Wait over");
+                //Console.ReadKey();
+
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine("Error occured : ", ex.InnerException.Message);
+                Console.WriteLine("Error occured : {0} ", ex.Message);
+            }
+
+        }
+
+        public static void processRecords()
+        {
+            try
+            {
                 Console.WriteLine("Start time:" + DateTime.Now);
+
                 linesInFailedFile = new List<string>();
                 linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "Start Time : " + DateTime.Now, "", "", ""));
                 string serverUrl = ConfigurationManager.AppSettings["serverUrl"].ToString();
                 string userName = ConfigurationManager.AppSettings["UserName"].ToString();
-                string password = ConfigurationManager.AppSettings["Password"].ToString();
+                //string password = ConfigurationManager.AppSettings["Password"].ToString();
                 string domain = ConfigurationManager.AppSettings["Domain"].ToString();
                 StartPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["StartPageNumber"]);
                 EndPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["EndPageNumber"]);
@@ -70,7 +103,6 @@ namespace ArupMultiSelect
                 UpdateContact(service);
 
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "End Time : " + DateTime.Now, "", "", ""));
-
             }
             catch (Exception ex)
             {
@@ -370,6 +402,9 @@ namespace ArupMultiSelect
                         {
                             result = t.Result.Value;
                             callback?.Invoke(t.Result.Value);
+                            password = t.Result.Value;
+                            //processRecords();
+                            //callback.Invoke()
                         }
                     }
                     );

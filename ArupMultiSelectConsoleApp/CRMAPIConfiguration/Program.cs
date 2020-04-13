@@ -15,11 +15,48 @@ using System.IO;
 using System.Data;
 using Microsoft.Xrm.Sdk.Query;
 using System.Configuration;
+using System.Collections.Specialized;
+using Microsoft.Xrm.Sdk.Metadata;
+using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.Services.AppAuthentication;
+using ArupMultiSelect;
 
 namespace CRMAPIConfiguration
 {
-    class Program
+    class Program: IConfig
     {
+        private static string _keyVaultPath;
+        private static string _CRMHubPWKey = String.Empty;
+        private static Task<string> _CRMHubPWTask;
+
+        string IConfig.KeyVaultPath => KeyVaultPath;
+
+
+
+        public static string KeyVaultPath
+        {
+            get
+            {
+                if (String.IsNullOrEmpty(_keyVaultPath))
+                {
+                    _keyVaultPath = ConfigurationManager.AppSettings.Get("KeyVaultPath");
+                }
+
+                return _keyVaultPath;
+            }
+        }
+
+        public string CRMHubPWKey
+        {
+            get
+            {
+                _CRMHubPWTask.Wait();
+                return _CRMHubPWKey;
+            }
+        }
+
+        static string password = string.Empty;
         static List<string> linesInFailedFile = null;
         static string fileName = "FailedRecordsFile" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".csv";
         static int StartPageNumber = 0;
@@ -29,13 +66,15 @@ namespace CRMAPIConfiguration
         {
             try
             {
+                _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
+                _CRMHubPWTask.Wait();
                 Console.WriteLine("CRM API Configuration records Processing Statred. Start time:" + DateTime.Now);
                 linesInFailedFile = new List<string>();
                 linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "Start Time : " + DateTime.Now, "", "", ""));
                 string serverUrl = ConfigurationManager.AppSettings["serverUrl"].ToString();
                 string userName = ConfigurationManager.AppSettings["UserName"].ToString();
-                string password = ConfigurationManager.AppSettings["Password"].ToString();
+                //string password = ConfigurationManager.AppSettings["Password"].ToString();
                 string domain = ConfigurationManager.AppSettings["Domain"].ToString();
                 StartPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["StartPageNumber"]);
                 EndPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["EndPageNumber"]);
@@ -54,6 +93,52 @@ namespace CRMAPIConfiguration
             finally
             {
                 System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+            }
+        }
+
+        public static async Task<string> GetSecretTask(string secretName, Action<string> callback)
+        {
+            try
+            {
+                var azureServiceTokenprovider = new AzureServiceTokenProvider();
+                var keyVaultClient =
+                    new KeyVaultClient(
+                        new KeyVaultClient.AuthenticationCallback(azureServiceTokenprovider.KeyVaultTokenCallback));
+                //Log($"Accessing Key vault path {KeyVaultPath.TrimEnd("/".ToCharArray())}/secrets/{secretName}");
+                var result = String.Empty;
+
+                var getSecretTask = keyVaultClient
+                    .GetSecretAsync($"{KeyVaultPath.TrimEnd("/".ToCharArray())}/secrets/{secretName}").ContinueWith(t =>
+                    {
+                        if (t.IsFaulted)
+                        {
+                            //Log($"GetSecretTask failed : {t.Exception.Message}");
+                            foreach (var exception in t.Exception.InnerExceptions)
+                            {
+                                //Log($"  {exception.Message}");
+                            }
+                        }
+                        else
+                        {
+                            result = t.Result.Value;
+                            callback?.Invoke(t.Result.Value);
+                            password = t.Result.Value;
+                            //processRecords();
+                            //callback.Invoke()
+                        }
+                    }
+                    );
+                await getSecretTask;
+
+                // example: - "https://crmcloudkeys.vault.azure.net/secrets/oracle-test-connection"
+
+                //Log($"Obtained secret \"{secretName}\" from keyvault");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                //Log($"Failed to get secret ${secretName} message: {ex.Message}");
+                throw;
             }
         }
 

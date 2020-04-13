@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArupMultiSelect
+namespace OpportunityNew
 {
-    public interface IConfig
+    interface IConfig
     {
         string KeyVaultPath { get; }
 
