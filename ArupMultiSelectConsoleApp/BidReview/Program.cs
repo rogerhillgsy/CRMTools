@@ -20,11 +20,10 @@ using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
-using ArupMultiSelect;
 
-namespace CloseOpportunityReasons
+namespace BidReview
 {
-    class Program : IConfig
+    public class Program : IConfig
     {
         private static string _keyVaultPath;
         private static string _CRMHubPWKey = String.Empty;
@@ -55,41 +54,61 @@ namespace CloseOpportunityReasons
                 return _CRMHubPWKey;
             }
         }
-
-        static string password = string.Empty;
         static List<string> linesInFailedFile = null;
         static string fileName = "FailedRecordsFile" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".csv";
         static int StartPageNumber = 0;
         static int EndPageNumber = 0;
         static int RecordCountPerPage = 0;
-        static void Main(string[] args)
+        static string password = string.Empty;
+
+        public static void Main(string[] args)
         {
             try
             {
                 _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
                 _CRMHubPWTask.Wait();
-                Console.WriteLine("Close Opportunity Reasons records Processing Statred. Start time:" + DateTime.Now);
+                processRecords();
+                //Console.WriteLine("Wait start");
+                //System.Threading.Thread.Sleep(10000);
+                //Console.WriteLine("Wait over");
+                //Console.ReadKey();
+
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine("Error occured : ", ex.InnerException.Message);
+                Console.WriteLine("Error occured : {0} ", ex.Message);
+            }
+
+        }
+
+        public static void processRecords()
+        {
+            try
+            {
+                Console.WriteLine("Bid Review : Start time:" + DateTime.Now);
+
                 linesInFailedFile = new List<string>();
                 linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "Start Time : " + DateTime.Now, "", "", ""));
                 string serverUrl = ConfigurationManager.AppSettings["serverUrl"].ToString();
                 string userName = ConfigurationManager.AppSettings["UserName"].ToString();
-                //string password = ConfigurationManager.AppSettings["Password"].ToString();CIm2$98pRt
-                password = "CIm2$98pRt";
+                //string password = ConfigurationManager.AppSettings["Password"].ToString();
+                string password1 = "CIm2$98pRt";
                 string domain = ConfigurationManager.AppSettings["Domain"].ToString();
                 StartPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["StartPageNumber"]);
                 EndPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["EndPageNumber"]);
                 RecordCountPerPage = Convert.ToInt32(ConfigurationManager.AppSettings["RecordCountPerPage"]);
-                IOrganizationService service = CreateService(serverUrl, userName, password, domain);
-                //IOrganizationService service = CreateService("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
-                UpdateCloseopportunityreason(service);
+                IOrganizationService service = CreateService(serverUrl, userName, password1, domain);
+                //IOrganizationService service = CreateService1("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
+                UpdateBidReview(service);
 
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "End Time : " + DateTime.Now, "", "", ""));
             }
             catch (Exception ex)
             {
                 //Console.WriteLine("Error occured : ", ex.InnerException.Message);
-                Console.WriteLine("Error occured : {0} ", ex.Message);
+                Console.WriteLine("Bid Review : Error occured : {0} ", ex.Message);
             }
             finally
             {
@@ -98,6 +117,8 @@ namespace CloseOpportunityReasons
         }
 
         #region CRM CONNECTION
+
+
         public static IOrganizationService CreateService(string serverUrl, string userId, string password, string domain)
         {
             Console.WriteLine("\n\nConnecting to CRM..........\n\n");
@@ -126,7 +147,7 @@ namespace CloseOpportunityReasons
                 {
                     //serviceProxy.ClientCredentials.UserName.UserName = userId; // Your Online username.Eg:username@yourco mpany.onmicrosoft.com";
                     //serviceProxy.ClientCredentials.UserName.Password = password; //Your Online password
-                    serviceProxy.ServiceConfiguration.CurrentServiceEndpoint.Behaviors.Add(new ProxyTypesBehavior());
+                    serviceProxy.ServiceConfiguration.CurrentServiceEndpoint.EndpointBehaviors.Add(new ProxyTypesBehavior());
                     serviceProxy.Timeout = new TimeSpan(0, 120, 0);
                     _service = (IOrganizationService)serviceProxy;
                 }
@@ -137,24 +158,23 @@ namespace CloseOpportunityReasons
             {
                 throw new System.Exception("<Error>Problem in creating CRM Service</Error>" + ex.Message);
             }
+
+
         }
 
         #endregion
 
-
-
-        #region Update Opportunity
-        public static void UpdateCloseopportunityreason(IOrganizationService service)
+        public static void UpdateBidReview(IOrganizationService service)
         {
-            QueryExpression test = new QueryExpression();
 
-            QueryExpression query = new QueryExpression("arup_closeopportunityreason");
+            QueryExpression query = new QueryExpression("ccrm_bidreview");
             //query.ColumnSet = new ColumnSet("ccrm_businessinterestpicklistname", "ccrm_businessinterestpicklistvalue", "arup_businessinterest");
-            query.ColumnSet.AddColumns("arup_lostopportunityreasonvalues", "arup_wonopportunityreasonvalues");
+            query.ColumnSet.AddColumns("ccrm_sectione_data_15a_value", "ccrm_sectionf_data_10_value");
             query.Criteria = new FilterExpression();
+
             query.Criteria.FilterOperator = LogicalOperator.Or;
-            query.Criteria.AddCondition("arup_lostopportunityreasonvalues", ConditionOperator.NotNull);
-            query.Criteria.AddCondition("arup_wonopportunityreasonvalues", ConditionOperator.NotNull);
+            query.Criteria.AddCondition("ccrm_sectione_data_15a_value", ConditionOperator.NotNull);
+            query.Criteria.AddCondition("ccrm_sectionf_data_10_value", ConditionOperator.NotNull);
             query.PageInfo = new PagingInfo();
             query.PageInfo.Count = RecordCountPerPage;
             query.PageInfo.PageNumber = StartPageNumber;
@@ -164,47 +184,41 @@ namespace CloseOpportunityReasons
             foreach (Entity i in entityCollection.Entities)
             {
                 final.Entities.Add(i);
-                UpdateLeadMultiSelect(service,
-                    i.GetAttributeValue<Guid>("arup_closeopportunityreasonid"),
-                    i.GetAttributeValue<string>("arup_lostopportunityreasonvalues"),
-                    i.GetAttributeValue<string>("arup_wonopportunityreasonvalues"));
+                UpdateBidReviewMultiSelect(service, i.GetAttributeValue<Guid>("ccrm_bidreviewid"), i.GetAttributeValue<string>("ccrm_sectione_data_15a_value"), i.GetAttributeValue<string>("ccrm_sectionf_data_10_value"));
+                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
             }
             do
             {
+                if (query.PageInfo.PageNumber == EndPageNumber)
+                    break;
                 query.PageInfo.PageNumber += 1;
                 query.PageInfo.PagingCookie = entityCollection.PagingCookie;
                 entityCollection = service.RetrieveMultiple(query);
                 foreach (Entity i in entityCollection.Entities)
                 {
                     final.Entities.Add(i);
-                    UpdateLeadMultiSelect(service,
-                    i.GetAttributeValue<Guid>("arup_closeopportunityreasonid"),
-                    i.GetAttributeValue<string>("arup_lostopportunityreasonvalues"),
-                    i.GetAttributeValue<string>("arup_wonopportunityreasonvalues"));
+                    UpdateBidReviewMultiSelect(service, i.GetAttributeValue<Guid>("ccrm_bidreviewid"), i.GetAttributeValue<string>("ccrm_sectione_data_15a_value"), i.GetAttributeValue<string>("ccrm_sectionf_data_10_value"));
                 }
-
-                Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + " Close Opportunity Reasons Records processed at : " + DateTime.Now);
+                Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + " ccrm_bidreview Records processed at : " + DateTime.Now);
                 System.IO.File.WriteAllLines(fileName, linesInFailedFile);
                 if (query.PageInfo.PageNumber == EndPageNumber)
                     break;
             }
             while (entityCollection.MoreRecords);
-            Console.WriteLine("Total Close Opportunity Reasons record count:" + RecordCountPerPage * EndPageNumber);
-            Console.WriteLine("Close Opportunity Reasons records Processing Completed. End time:" + DateTime.Now);
+            Console.WriteLine("Total ccrm_bidreview record count:" + RecordCountPerPage * EndPageNumber);
             Console.ReadKey();
         }
 
-        //ccrm_othernetworksval", "ccrm_servicesvalue", "ccrm_theworksvalue", "ccrm_disciplinesvalue", "ccrm_projectsectorvalue"
-        public static void UpdateLeadMultiSelect(IOrganizationService service, Guid arup_closeopportunityreasonid, string arup_lostopportunityreasonvalues, string arup_wonopportunityreasonvalues)
+        public static void UpdateBidReviewMultiSelect(IOrganizationService service, Guid ccrm_bidreviewId, string ccrm_sectione_data_15a_value, string ccrm_sectionf_data_10_value)
         {
             try
             {
-                Entity opportunity = new Entity("arup_closeopportunityreason");
-                if (arup_lostopportunityreasonvalues != string.Empty && arup_lostopportunityreasonvalues != null)
+                Entity ccrm_bidreview = new Entity("ccrm_bidreview");
+                if (ccrm_sectione_data_15a_value != string.Empty && ccrm_sectione_data_15a_value != null)
                 {
-                    Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "arup_closeopportunityreason", "arup_lostopportunityreasonslist");
+                    Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "ccrm_bidreview", "ccrm_sectione_data_15a");
                     OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
-                    string[] arr = arup_lostopportunityreasonvalues.Split(',');
+                    string[] arr = ccrm_sectione_data_15a_value.Split(',');
                     foreach (var item in arr)
                     {
                         if (item != null && item.Trim() != string.Empty && item.Trim() != "")
@@ -216,13 +230,13 @@ namespace CloseOpportunityReasons
                         }
                     }
 
-                    opportunity["arup_lostreasons"] = collectionOptionSetValues;
+                    ccrm_bidreview["arup_bondstype"] = collectionOptionSetValues;
                 }
-                if (arup_wonopportunityreasonvalues != string.Empty && arup_wonopportunityreasonvalues != null)
+                if (ccrm_sectionf_data_10_value != string.Empty && ccrm_sectionf_data_10_value != null)
                 {
-                    Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "arup_closeopportunityreason", "arup_wonopportunityreasonslist");
+                    Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "ccrm_bidreview", "ccrm_sectionf_optionset_10");
                     OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
-                    string[] arr = arup_wonopportunityreasonvalues.Split(',');
+                    string[] arr = ccrm_sectionf_data_10_value.Split(',');
                     foreach (var item in arr)
                     {
                         if (item != null && item.Trim() != string.Empty && item.Trim() != "")
@@ -234,19 +248,19 @@ namespace CloseOpportunityReasons
                         }
                     }
 
-                    opportunity["arup_wonreasons"] = collectionOptionSetValues;
+                    ccrm_bidreview["arup_keyindicators"] = collectionOptionSetValues;
                 }
 
-                opportunity.Id = arup_closeopportunityreasonid;
-                service.Update(opportunity);
+                ccrm_bidreview.Id = ccrm_bidreviewId;
+                service.Update(ccrm_bidreview);
             }
             catch (Exception e)
             {
                 Console.WriteLine("Error : " + e.Message);
                 //linesInFailedFile.Add("RecordId,ToOptionset,Values,Message");
-                string optionSetValues = "arup_lostreasons : " + arup_lostopportunityreasonvalues + " | arup_wonreasons : " + arup_wonopportunityreasonvalues;
+                string optionSetValues = "ccrm_sectione_data_15a_value : " + ccrm_sectione_data_15a_value + "ccrm_sectionf_data_10_value : " + ccrm_sectionf_data_10_value;
 
-                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "arup_closeopportunityreason", arup_closeopportunityreasonid, e.Message, optionSetValues));
+                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "ccrm_bidreview", ccrm_bidreviewId, e.Message, optionSetValues));
             }
         }
 
@@ -276,7 +290,7 @@ namespace CloseOpportunityReasons
             FetchXml = FetchXml + "<attribute name='attributevalue' />";
             FetchXml = FetchXml + "<attribute name='value' />";
             FetchXml = FetchXml + "<filter type='and' >";
-            FetchXml = FetchXml + "<condition attribute='objecttypecode' operator='eq' value='10142' />";
+            FetchXml = FetchXml + "<condition attribute='objecttypecode' operator='eq' value='10075' />";
             FetchXml = FetchXml + "<condition attribute='attributename' operator='eq' value='" + FieldLogicalName + "' />";
             FetchXml = FetchXml + "</filter></entity></fetch>";
 
@@ -295,7 +309,8 @@ namespace CloseOpportunityReasons
             }
             return dic;
         }
-        #endregion
+
+
 
         public static async Task<string> GetSecretTask(string secretName, Action<string> callback)
         {
