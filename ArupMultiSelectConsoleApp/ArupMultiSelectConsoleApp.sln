@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectCollaborator", "Proj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectCollaboratorMultiSelect", "ProjectCollaboratorMultiSelect\ProjectCollaboratorMultiSelect.csproj", "{87582195-5DA2-4DD3-8D22-F048E95A18EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidReview", "BidReview\BidReview.csproj", "{3FF6FC18-419A-4085-9870-045C199D8864}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{87582195-5DA2-4DD3-8D22-F048E95A18EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87582195-5DA2-4DD3-8D22-F048E95A18EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87582195-5DA2-4DD3-8D22-F048E95A18EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FF6FC18-419A-4085-9870-045C199D8864}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FF6FC18-419A-4085-9870-045C199D8864}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FF6FC18-419A-4085-9870-045C199D8864}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FF6FC18-419A-4085-9870-045C199D8864}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
