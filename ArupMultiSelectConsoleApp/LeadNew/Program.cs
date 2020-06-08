@@ -265,7 +265,7 @@ namespace LeadNew
                     string[] arr = arup_projectsectorvalue.Split(',');
                     foreach (var item in arr)
                     {
-                        if (item != null && item.Trim() != string.Empty && item.Trim() != "")
+                        if (item != null && item.Trim() != string.Empty && item.Trim() != "" && item.All(char.IsDigit) == true)
                         {
                             if (opset.ContainsKey(Convert.ToInt32(item)))
                             {
