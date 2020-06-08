@@ -221,7 +221,7 @@ namespace BidReview
                     string[] arr = ccrm_sectione_data_15a_value.Split(',');
                     foreach (var item in arr)
                     {
-                        if (item != null && item.Trim() != string.Empty && item.Trim() != "")
+                        if (item != null && item.Trim() != string.Empty && item.Trim() != "" && item.All(char.IsDigit) == true)
                         {
                             if (opset.ContainsKey(Convert.ToInt32(item)))
                             {

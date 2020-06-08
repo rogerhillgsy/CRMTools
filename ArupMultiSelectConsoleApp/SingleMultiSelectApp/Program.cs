@@ -20,8 +20,9 @@ using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
+using System.Text.RegularExpressions;
 
-namespace ProjectCollaboratorMultiSelect
+namespace SingleMultiSelectApp
 {
     public class Program : IConfig
     {
@@ -60,11 +61,16 @@ namespace ProjectCollaboratorMultiSelect
         static int EndPageNumber = 0;
         static int RecordCountPerPage = 0;
         static string password = string.Empty;
+        static string entityname = "";
+        static string[] fromOptionSet;
+        static string[] fromAttribute;
+        static string[] toAttribute;
+        static string objectTypeCode = "";
 
         public static void Main(string[] args)
         {
             try
-            {
+            {                
                 _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
                 _CRMHubPWTask.Wait();
                 processRecords();
@@ -86,7 +92,7 @@ namespace ProjectCollaboratorMultiSelect
         {
             try
             {
-                Console.WriteLine("ProjectCollaboratort : Start time:" + DateTime.Now);
+                Console.WriteLine("Bid Review : Start time:" + DateTime.Now);
 
                 linesInFailedFile = new List<string>();
                 linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
@@ -94,20 +100,26 @@ namespace ProjectCollaboratorMultiSelect
                 string serverUrl = ConfigurationManager.AppSettings["serverUrl"].ToString();
                 string userName = ConfigurationManager.AppSettings["UserName"].ToString();
                 //string password = ConfigurationManager.AppSettings["Password"].ToString();
+                string password1 = "CIm2$98pRt";
                 string domain = ConfigurationManager.AppSettings["Domain"].ToString();
                 StartPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["StartPageNumber"]);
                 EndPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["EndPageNumber"]);
                 RecordCountPerPage = Convert.ToInt32(ConfigurationManager.AppSettings["RecordCountPerPage"]);
-                IOrganizationService service = CreateService(serverUrl, userName, password, domain);
+                entityname = ConfigurationManager.AppSettings["Entity"].ToString();
+                objectTypeCode = ConfigurationManager.AppSettings["ObjectTypeCode"].ToString();
+                fromOptionSet = ConfigurationManager.AppSettings["FromOptionSet"].ToString().Split(',');
+                fromAttribute = ConfigurationManager.AppSettings["FromAttribute"].ToString().Split(',');
+                toAttribute = ConfigurationManager.AppSettings["ToAttribute"].ToString().Split(',');
+                IOrganizationService service = CreateService(serverUrl, userName, password1, domain);
                 //IOrganizationService service = CreateService1("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
-                UpdateProjectCollaborator(service);
+                UpdateEntityOptionSet(service, fromAttribute);
 
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "End Time : " + DateTime.Now, "", "", ""));
             }
             catch (Exception ex)
             {
                 //Console.WriteLine("Error occured : ", ex.InnerException.Message);
-                Console.WriteLine("ProjectCollaboratort : Error occured : {0} ", ex.Message);
+                Console.WriteLine("Bid Review : Error occured : {0} ", ex.Message);
             }
             finally
             {
@@ -163,83 +175,114 @@ namespace ProjectCollaboratorMultiSelect
 
         #endregion
 
-        public static void UpdateProjectCollaborator(IOrganizationService service)
+        public static void UpdateEntityOptionSet(IOrganizationService service, string[] fromAttribute)
         {
 
-            QueryExpression query = new QueryExpression("arup_projectparticipant");
-            //query.ColumnSet = new ColumnSet("ccrm_businessinterestpicklistname", "ccrm_businessinterestpicklistvalue", "arup_businessinterest");
-            query.ColumnSet.AddColumns("arup_projectparticipantid", "arup_participantrole_val", "arup_collaboratorrole");
+            QueryExpression query = new QueryExpression(entityname);
+            string entityprimaryid = entityname + "id";
+            int columnLength = 0;
+            for (int i = 0; i < fromAttribute.Length; i++)
+            {
+                query.ColumnSet.AddColumns(fromAttribute[i].ToString());
+                columnLength++;
+            }
             query.Criteria = new FilterExpression();
 
-            query.Criteria.AddCondition("arup_participantrole_val", ConditionOperator.NotNull);
+            query.Criteria.FilterOperator = LogicalOperator.Or;
+            for (int i = 0; i < fromAttribute.Length; i++)
+            {
+                query.Criteria.AddCondition(fromAttribute[i].ToString(), ConditionOperator.NotNull);
+            }
             query.PageInfo = new PagingInfo();
             query.PageInfo.Count = RecordCountPerPage;
             query.PageInfo.PageNumber = StartPageNumber;
             query.PageInfo.ReturnTotalRecordCount = true;
             EntityCollection entityCollection = service.RetrieveMultiple(query);
             EntityCollection final = new EntityCollection();
-            foreach (Entity i in entityCollection.Entities)
+            string[] columnValues = new string[columnLength];
+            for (int i=0; i< entityCollection.Entities.Count;i++)
             {
-                final.Entities.Add(i);
-                UpdateProjectCollaboratortMultiSelect(service, i.GetAttributeValue<Guid>("arup_projectparticipantid"), i.GetAttributeValue<string>("arup_participantrole_val"));
-                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+                final.Entities.Add(entityCollection.Entities[i]);                
+                for (int j = 0; j < fromAttribute.Length; j++)
+                {
+                    columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(fromAttribute[j].ToString());
+                }
+                UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
+
             }
+            System.IO.File.WriteAllLines(fileName, linesInFailedFile);
             do
             {
-
+                if (query.PageInfo.PageNumber == EndPageNumber)
+                    break;
                 query.PageInfo.PageNumber += 1;
                 query.PageInfo.PagingCookie = entityCollection.PagingCookie;
                 entityCollection = service.RetrieveMultiple(query);
-                foreach (Entity i in entityCollection.Entities)
+                for (int i = 0; i < entityCollection.Entities.Count; i++)
                 {
-                    final.Entities.Add(i);
-                    UpdateProjectCollaboratortMultiSelect(service, i.GetAttributeValue<Guid>("arup_projectparticipantid"), i.GetAttributeValue<string>("arup_participantrole_val"));
+                    final.Entities.Add(entityCollection.Entities[i]);
+                    for (int j = 0; j < fromAttribute.Length; j++)
+                    {
+                        columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(fromAttribute[j].ToString());
+                    }
+                    UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
+
                 }
-                Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + " Contact Records processed at : " + DateTime.Now);
+                Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + entityname + "  Records processed at : " + DateTime.Now);
                 System.IO.File.WriteAllLines(fileName, linesInFailedFile);
                 if (query.PageInfo.PageNumber == EndPageNumber)
                     break;
             }
             while (entityCollection.MoreRecords);
-            Console.WriteLine("Total ProjectCollaborator record count:" + RecordCountPerPage * EndPageNumber);
+            Console.WriteLine("Total ccrm_bidreview record count:" + RecordCountPerPage * EndPageNumber);
             Console.ReadKey();
         }
 
-        public static void UpdateProjectCollaboratortMultiSelect(IOrganizationService service, Guid contactId, string businessInterestValues)
+        public static void UpdateBidReviewMultiSelect(IOrganizationService service, Guid recordid, string[] columnValues)
         {
             try
             {
-                Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, "arup_projectparticipant", "arup_participantrole");
-                if (businessInterestValues != string.Empty && businessInterestValues != null)
+                Entity entity = new Entity(entityname);
+
+                for (int i = 0; i< columnValues.Length; i++)
                 {
-                    Entity contact = new Entity("arup_projectparticipant");
-                    OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
-                    string[] arr = businessInterestValues.Split(',');
-
-                    foreach (var item in arr)
+                    string columnVal = Convert.ToString(columnValues[i]);
+                    
+                    if (columnVal != string.Empty && columnVal != null)
                     {
-                        if (item != null && item.Trim() != string.Empty && item.Trim() != "" && item.All(char.IsDigit) == true)
+                        Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, entityname, fromOptionSet[i].ToString());
+                        OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
+                        string[] arr = columnVal.Split(',');
+                        foreach (var item in arr)
                         {
-                            if (opset.ContainsKey(Convert.ToInt32(item)))
+                            if (item != null && item.Trim() != string.Empty && item.Trim() != "" && item.All(char.IsDigit) == true)
                             {
-                                collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
+                                if (opset.ContainsKey(Convert.ToInt32(item)))
+                                {
+                                    collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
+                                }
                             }
-
                         }
-                    }
 
-                    contact["arup_collaboratorrole"] = collectionOptionSetValues;
-                    contact.Id = contactId;
-                    service.Update(contact);
-                }
+                        entity[toAttribute[i].ToString()] = collectionOptionSetValues;
+                    }
+                }                              
+
+                entity.Id = recordid;
+                service.Update(entity);
             }
             catch (Exception e)
             {
                 Console.WriteLine("Error : " + e.Message);
                 //linesInFailedFile.Add("RecordId,ToOptionset,Values,Message");
-                string optionSetValues = "arup_businessinterest : " + businessInterestValues;
+                string optionSetValues = "";// "ccrm_sectione_data_15a_value : " + ccrm_sectione_data_15a_value + "ccrm_sectionf_data_10_value : " + ccrm_sectionf_data_10_value;
 
-                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "Contact", contactId, e.Message, optionSetValues));
+                for (int i = 0; i < fromAttribute.Length; i++)
+                {
+                    optionSetValues = optionSetValues + fromAttribute[i].ToString() + " : " + columnValues[i].ToString();
+                }
+                        
+                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", entityname, recordid, e.Message, optionSetValues));
             }
         }
 
@@ -269,7 +312,7 @@ namespace ProjectCollaboratorMultiSelect
             FetchXml = FetchXml + "<attribute name='attributevalue' />";
             FetchXml = FetchXml + "<attribute name='value' />";
             FetchXml = FetchXml + "<filter type='and' >";
-            FetchXml = FetchXml + "<condition attribute='objecttypecode' operator='eq' value='10105' />";
+            FetchXml = FetchXml + "<condition attribute='objecttypecode' operator='eq' value='"+ objectTypeCode + "' />";
             FetchXml = FetchXml + "<condition attribute='attributename' operator='eq' value='" + FieldLogicalName + "' />";
             FetchXml = FetchXml + "</filter></entity></fetch>";
 
