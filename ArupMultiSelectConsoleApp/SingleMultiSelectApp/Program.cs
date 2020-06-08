@@ -92,8 +92,6 @@ namespace SingleMultiSelectApp
         {
             try
             {
-                Console.WriteLine("Bid Review : Start time:" + DateTime.Now);
-
                 linesInFailedFile = new List<string>();
                 linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "Start Time : " + DateTime.Now, "", "", ""));
@@ -110,6 +108,7 @@ namespace SingleMultiSelectApp
                 fromOptionSet = ConfigurationManager.AppSettings["FromOptionSet"].ToString().Split(',');
                 fromAttribute = ConfigurationManager.AppSettings["FromAttribute"].ToString().Split(',');
                 toAttribute = ConfigurationManager.AppSettings["ToAttribute"].ToString().Split(',');
+                Console.WriteLine(entityname + " Entity processing : Start time:" + DateTime.Now);
                 IOrganizationService service = CreateService(serverUrl, userName, password1, domain);
                 //IOrganizationService service = CreateService1("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
                 UpdateEntityOptionSet(service, fromAttribute);
