@@ -259,7 +259,7 @@ namespace Framework
                     string[] arr = arup_arupregionvalue.Split(',');
                     foreach (var item in arr)
                     {
-                        if (item != null && item.Trim() != string.Empty && item.Trim() != "")
+                        if (item != null && item.Trim() != string.Empty && item.Trim() != "" && item.All(char.IsDigit) == true)
                         {
                             if (opset.ContainsKey(Convert.ToInt32(item)))
                             {
@@ -388,7 +388,7 @@ namespace Framework
             FetchXml = FetchXml + "<attribute name='attributevalue' />";
             FetchXml = FetchXml + "<attribute name='value' />";
             FetchXml = FetchXml + "<filter type='and' >";
-            FetchXml = FetchXml + "<condition attribute='objecttypecodename' operator='eq' value='" + EntityLogicalName + "' />";
+            FetchXml = FetchXml + "<condition attribute='objecttypecode' operator='eq' value='10126' />";
             FetchXml = FetchXml + "<condition attribute='attributename' operator='eq' value='" + FieldLogicalName + "' />";
             FetchXml = FetchXml + "</filter></entity></fetch>";
 

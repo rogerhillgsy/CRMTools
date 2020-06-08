@@ -94,11 +94,12 @@ namespace ArupMultiSelect
                 string serverUrl = ConfigurationManager.AppSettings["serverUrl"].ToString();
                 string userName = ConfigurationManager.AppSettings["UserName"].ToString();
                 //string password = ConfigurationManager.AppSettings["Password"].ToString();
+                string password1 = "CIm2$98pRt";
                 string domain = ConfigurationManager.AppSettings["Domain"].ToString();
                 StartPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["StartPageNumber"]);
                 EndPageNumber = Convert.ToInt32(ConfigurationManager.AppSettings["EndPageNumber"]);
                 RecordCountPerPage = Convert.ToInt32(ConfigurationManager.AppSettings["RecordCountPerPage"]);
-                IOrganizationService service = CreateService1(serverUrl, userName, password, domain);
+                IOrganizationService service = CreateService1(serverUrl, userName, password1, domain);
                 //IOrganizationService service = CreateService1("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
                 UpdateContact(service);
 
@@ -300,10 +301,9 @@ namespace ArupMultiSelect
                     Entity contact = new Entity("contact");
                     OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
                     string[] arr = businessInterestValues.Split(',');
-
                     foreach (var item in arr)
-                    {
-                        if (item != null && item.Trim() != string.Empty && item.Trim() != "")
+                    {                        
+                        if (item != null && item.Trim() != string.Empty && item.Trim() != "" && item.All(char.IsDigit) == true)
                         {
                             if (opset.ContainsKey(Convert.ToInt32(item)))
                             {
@@ -354,7 +354,7 @@ namespace ArupMultiSelect
             FetchXml = FetchXml + "<attribute name='attributevalue' />";
             FetchXml = FetchXml + "<attribute name='value' />";
             FetchXml = FetchXml + "<filter type='and' >";
-            FetchXml = FetchXml + "<condition attribute='objecttypecodename' operator='eq' value='" + EntityLogicalName + "' />";
+            FetchXml = FetchXml + "<condition attribute='objecttypecode' operator='eq' value='2' />";
             FetchXml = FetchXml + "<condition attribute='attributename' operator='eq' value='" + FieldLogicalName + "' />";
             FetchXml = FetchXml + "</filter></entity></fetch>";
 
