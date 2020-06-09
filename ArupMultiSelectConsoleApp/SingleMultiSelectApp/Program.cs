@@ -66,7 +66,7 @@ namespace SingleMultiSelectApp
         static string[] fromAttribute;
         static string[] toAttribute;
         static string objectTypeCode = "";
-
+        static int zeroRecordPages = 0;
         public static void Main(string[] args)
         {
             try
@@ -94,7 +94,7 @@ namespace SingleMultiSelectApp
             {
                 linesInFailedFile = new List<string>();
                 linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
-                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "Start Time : " + DateTime.Now, "", "", ""));
+                linesInFailedFile.Add(string.Format("{0}", "Start Time : " + DateTime.Now));
                 string serverUrl = ConfigurationManager.AppSettings["serverUrl"].ToString();
                 string userName = ConfigurationManager.AppSettings["UserName"].ToString();
                 //string password = ConfigurationManager.AppSettings["Password"].ToString();
@@ -113,12 +113,13 @@ namespace SingleMultiSelectApp
                 //IOrganizationService service = CreateService1("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
                 UpdateEntityOptionSet(service, fromAttribute);
 
-                linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", "End Time : " + DateTime.Now, "", "", ""));
+                
             }
             catch (Exception ex)
             {
                 //Console.WriteLine("Error occured : ", ex.InnerException.Message);
                 Console.WriteLine("Bid Review : Error occured : {0} ", ex.Message);
+                linesInFailedFile.Add(string.Format("{0}", ex.Message));
             }
             finally
             {
@@ -176,47 +177,30 @@ namespace SingleMultiSelectApp
 
         public static void UpdateEntityOptionSet(IOrganizationService service, string[] fromAttribute)
         {
-
-            QueryExpression query = new QueryExpression(entityname);
-            string entityprimaryid = entityname + "id";
-            int columnLength = 0;
-            for (int i = 0; i < fromAttribute.Length; i++)
+            try
             {
-                query.ColumnSet.AddColumns(fromAttribute[i].ToString());
-                columnLength++;
-            }
-            query.Criteria = new FilterExpression();
-
-            query.Criteria.FilterOperator = LogicalOperator.Or;
-            for (int i = 0; i < fromAttribute.Length; i++)
-            {
-                query.Criteria.AddCondition(fromAttribute[i].ToString(), ConditionOperator.NotNull);
-            }
-            query.PageInfo = new PagingInfo();
-            query.PageInfo.Count = RecordCountPerPage;
-            query.PageInfo.PageNumber = StartPageNumber;
-            query.PageInfo.ReturnTotalRecordCount = true;
-            EntityCollection entityCollection = service.RetrieveMultiple(query);
-            EntityCollection final = new EntityCollection();
-            string[] columnValues = new string[columnLength];
-            for (int i=0; i< entityCollection.Entities.Count;i++)
-            {
-                final.Entities.Add(entityCollection.Entities[i]);                
-                for (int j = 0; j < fromAttribute.Length; j++)
+                QueryExpression query = new QueryExpression(entityname);
+                string entityprimaryid = entityname + "id";
+                int columnLength = 0;
+                for (int i = 0; i < fromAttribute.Length; i++)
                 {
-                    columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(fromAttribute[j].ToString());
+                    query.ColumnSet.AddColumns(fromAttribute[i].ToString());
+                    columnLength++;
                 }
-                UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
+                query.Criteria = new FilterExpression();
 
-            }
-            System.IO.File.WriteAllLines(fileName, linesInFailedFile);
-            do
-            {
-                if (query.PageInfo.PageNumber == EndPageNumber)
-                    break;
-                query.PageInfo.PageNumber += 1;
-                query.PageInfo.PagingCookie = entityCollection.PagingCookie;
-                entityCollection = service.RetrieveMultiple(query);
+                query.Criteria.FilterOperator = LogicalOperator.Or;
+                for (int i = 0; i < fromAttribute.Length; i++)
+                {
+                    query.Criteria.AddCondition(fromAttribute[i].ToString(), ConditionOperator.NotNull);
+                }
+                query.PageInfo = new PagingInfo();
+                query.PageInfo.Count = RecordCountPerPage;
+                query.PageInfo.PageNumber = StartPageNumber;
+                query.PageInfo.ReturnTotalRecordCount = true;
+                EntityCollection entityCollection = service.RetrieveMultiple(query);
+                EntityCollection final = new EntityCollection();
+                string[] columnValues = new string[columnLength];
                 for (int i = 0; i < entityCollection.Entities.Count; i++)
                 {
                     final.Entities.Add(entityCollection.Entities[i]);
@@ -227,14 +211,53 @@ namespace SingleMultiSelectApp
                     UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
 
                 }
-                Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + entityname + "  Records processed at : " + DateTime.Now);
                 System.IO.File.WriteAllLines(fileName, linesInFailedFile);
-                if (query.PageInfo.PageNumber == EndPageNumber)
-                    break;
+                Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + entityname + "  Records processed at : " + DateTime.Now);
+                do
+                {
+                    if (query.PageInfo.PageNumber == EndPageNumber)
+                        break;
+                    query.PageInfo.PageNumber += 1;
+                    query.PageInfo.PagingCookie = entityCollection.PagingCookie;
+                    entityCollection = service.RetrieveMultiple(query);
+                    for (int i = 0; i < entityCollection.Entities.Count; i++)
+                    {
+                        final.Entities.Add(entityCollection.Entities[i]);
+                        for (int j = 0; j < fromAttribute.Length; j++)
+                        {
+                            columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(fromAttribute[j].ToString());
+                        }
+                        UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
+
+                    }
+
+                    if (entityCollection.Entities.Count > 0)
+                        Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + entityname + "  Records processed at : " + DateTime.Now);
+                    else
+                    {
+                        linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", entityname, "", "There are no records at page " + query.PageInfo.PageNumber, ""));
+                        zeroRecordPages++;
+                    }
+                    System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+                    if (query.PageInfo.PageNumber == EndPageNumber)
+                        break;
+                }
+                while (entityCollection.MoreRecords);
+                int totalpagesprocessed = EndPageNumber - StartPageNumber + 1;
+                //Console.WriteLine(zeroRecordPages + " pages does not have any records");
+                Console.WriteLine("Total " + entityname + " records processed count:" + RecordCountPerPage * totalpagesprocessed);
+                linesInFailedFile.Add(string.Format("{0}", "Total " + entityname + " records processed count:" + RecordCountPerPage * totalpagesprocessed));
+                linesInFailedFile.Add(string.Format("{0}", "End Time : " + DateTime.Now));
+                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+                Console.ReadKey();
             }
-            while (entityCollection.MoreRecords);
-            Console.WriteLine("Total ccrm_bidreview record count:" + RecordCountPerPage * EndPageNumber);
-            Console.ReadKey();
+            catch (Exception ex)
+            {
+                //Console.WriteLine("Error occured : ", ex.InnerException.Message);
+                Console.WriteLine(entityname +" Entity processing Error occured : {0} ", ex.Message);
+                linesInFailedFile.Add(string.Format("{0}", ex.Message));
+                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+            }
         }
 
         public static void UpdateBidReviewMultiSelect(IOrganizationService service, Guid recordid, string[] columnValues)
@@ -282,6 +305,7 @@ namespace SingleMultiSelectApp
                 }
                         
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", entityname, recordid, e.Message, optionSetValues));
+                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
             }
         }
 
