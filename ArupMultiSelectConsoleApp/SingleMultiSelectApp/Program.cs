@@ -56,7 +56,7 @@ namespace SingleMultiSelectApp
             }
         }
         static List<string> linesInFailedFile = null;
-        static string fileName = "FailedRecordsFile" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".csv";
+        static string fileName = "";
         static int StartPageNumber = 0;
         static int EndPageNumber = 0;
         static int RecordCountPerPage = 0;
@@ -67,6 +67,8 @@ namespace SingleMultiSelectApp
         static string[] toAttribute;
         static string objectTypeCode = "";
         static int zeroRecordPages = 0;
+        static int totalRejectedRecordCount = 0;
+        static int totalSuccessRecordCount = 0;
         public static void Main(string[] args)
         {
             try
@@ -92,9 +94,7 @@ namespace SingleMultiSelectApp
         {
             try
             {
-                linesInFailedFile = new List<string>();
-                linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
-                linesInFailedFile.Add(string.Format("{0}", "Start Time : " + DateTime.Now));
+                
                 string serverUrl = ConfigurationManager.AppSettings["serverUrl"].ToString();
                 string userName = ConfigurationManager.AppSettings["UserName"].ToString();
                 //string password = ConfigurationManager.AppSettings["Password"].ToString();
@@ -108,11 +108,14 @@ namespace SingleMultiSelectApp
                 fromOptionSet = ConfigurationManager.AppSettings["FromOptionSet"].ToString().Split(',');
                 fromAttribute = ConfigurationManager.AppSettings["FromAttribute"].ToString().Split(',');
                 toAttribute = ConfigurationManager.AppSettings["ToAttribute"].ToString().Split(',');
+                fileName = entityname+"_FailedRecordsLogFile_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".csv";
+                linesInFailedFile = new List<string>();
+                linesInFailedFile.Add("Entity,RecordId,Error Description, OptionSetValues");
+                linesInFailedFile.Add(string.Format("{0}", "Start Time : " + DateTime.Now));
                 Console.WriteLine(entityname + " Entity processing : Start time:" + DateTime.Now);
                 IOrganizationService service = CreateService(serverUrl, userName, password1, domain);
                 //IOrganizationService service = CreateService1("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
                 UpdateEntityOptionSet(service, fromAttribute);
-
                 
             }
             catch (Exception ex)
@@ -175,7 +178,125 @@ namespace SingleMultiSelectApp
 
         #endregion
 
+        #region code with skipping processed records
         public static void UpdateEntityOptionSet(IOrganizationService service, string[] fromAttribute)
+        {
+            try
+            {
+                QueryExpression query = new QueryExpression(entityname);
+                string entityprimaryid = entityname + "id";
+                int columnLength = 0;
+                for (int i = 0; i < fromAttribute.Length; i++)
+                {
+                    query.ColumnSet.AddColumns(fromAttribute[i].ToString());
+                    columnLength++;
+                }
+                query.Criteria = new FilterExpression();
+
+                FilterExpression filter = new FilterExpression(LogicalOperator.And);
+                FilterExpression filter1 = new FilterExpression(LogicalOperator.And);
+                for (int i = 0; i < toAttribute.Length; i++)
+                {
+                    filter1.Conditions.Add(new ConditionExpression(toAttribute[i].ToString(), ConditionOperator.Null));
+                }
+                FilterExpression filter2 = new FilterExpression(LogicalOperator.Or);
+                for (int i = 0; i < fromAttribute.Length; i++)
+                {
+                    filter2.Conditions.Add(new ConditionExpression(fromAttribute[i].ToString(), ConditionOperator.NotNull));
+                }
+                filter.AddFilter(filter1);
+                filter.AddFilter(filter2);
+
+                query.Criteria = filter;
+
+                query.PageInfo = new PagingInfo();
+                query.PageInfo.Count = RecordCountPerPage;
+                query.PageInfo.PageNumber = StartPageNumber;
+                query.PageInfo.ReturnTotalRecordCount = true;
+                //
+                //QueryExpressionToFetchXmlRequest req = new QueryExpressionToFetchXmlRequest();
+                //req.Query = query;
+                //QueryExpressionToFetchXmlResponse resp = (QueryExpressionToFetchXmlResponse)service.Execute(req);
+
+                //string myfetch = resp.FetchXml;
+                //
+                EntityCollection entityCollection = service.RetrieveMultiple(query);
+                EntityCollection final = new EntityCollection();
+                string[] columnValues = new string[columnLength];
+                int rowCount = 0;
+                rowCount = entityCollection.Entities.Count;
+                for (int i = 0; i < entityCollection.Entities.Count; i++)
+                {
+                    final.Entities.Add(entityCollection.Entities[i]);
+                    for (int j = 0; j < fromAttribute.Length; j++)
+                    {
+                        columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(fromAttribute[j].ToString());
+                    }
+                    UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
+
+                }
+                if (rowCount > 0)
+                {
+                    System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+                    int totalrecordsprocessed1 = totalSuccessRecordCount + totalRejectedRecordCount;
+                    Console.WriteLine(totalrecordsprocessed1 + " " + entityname + "  Records processed at : " + DateTime.Now);
+                }
+                //rowCount = 0;
+                do
+                {
+                    if (query.PageInfo.PageNumber == EndPageNumber)
+                        break;
+                    query.PageInfo.PageNumber += 1;
+                    query.PageInfo.PagingCookie = entityCollection.PagingCookie;
+                    entityCollection = service.RetrieveMultiple(query);
+                    rowCount = entityCollection.Entities.Count;
+                    for (int i = 0; i < entityCollection.Entities.Count; i++)
+                    {
+                        final.Entities.Add(entityCollection.Entities[i]);
+                        for (int j = 0; j < fromAttribute.Length; j++)
+                        {
+                            columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(fromAttribute[j].ToString());
+                        }
+                        UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
+
+                    }
+
+                    if (entityCollection.Entities.Count > 0)
+                        Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + " " + entityname + "  Records processed at : " + DateTime.Now);
+                    else
+                    {
+                        linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", entityname, "", "There are no records at page " + query.PageInfo.PageNumber, ""));
+                        zeroRecordPages++;
+                    }
+                    System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+                    if (query.PageInfo.PageNumber == EndPageNumber)
+                        break;
+                }
+                while (entityCollection.MoreRecords);
+
+                int totalrecordsprocessed = totalSuccessRecordCount + totalRejectedRecordCount;
+                linesInFailedFile.Add(string.Format("{0}", "Total " + entityname + " records processed count:" + totalrecordsprocessed));
+                linesInFailedFile.Add(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " Failed Count : " + totalRejectedRecordCount));
+                linesInFailedFile.Add(string.Format("{0}", "End Time : " + DateTime.Now));
+                Console.WriteLine(string.Format("{0}", "Total " + entityname + " records processed count:" + totalrecordsprocessed));
+                Console.WriteLine(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " Failed Count : " + totalRejectedRecordCount));
+                Console.WriteLine(string.Format("{0}", "End Time : " + DateTime.Now));
+                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+                Console.ReadKey();
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine("Error occured : ", ex.InnerException.Message);
+                Console.WriteLine(entityname +" Entity processing Error occured : {0} ", ex.Message);
+                linesInFailedFile.Add(string.Format("{0}", ex.Message));
+                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+            }
+        }
+        #endregion
+
+
+        #region code without skipping processed records
+        public static void UpdateEntityOptionSet1(IOrganizationService service, string[] fromAttribute)
         {
             try
             {
@@ -194,13 +315,17 @@ namespace SingleMultiSelectApp
                 {
                     query.Criteria.AddCondition(fromAttribute[i].ToString(), ConditionOperator.NotNull);
                 }
+                                
                 query.PageInfo = new PagingInfo();
                 query.PageInfo.Count = RecordCountPerPage;
                 query.PageInfo.PageNumber = StartPageNumber;
                 query.PageInfo.ReturnTotalRecordCount = true;
+                
                 EntityCollection entityCollection = service.RetrieveMultiple(query);
                 EntityCollection final = new EntityCollection();
                 string[] columnValues = new string[columnLength];
+                int rowCount = 0;
+                rowCount = entityCollection.Entities.Count;
                 for (int i = 0; i < entityCollection.Entities.Count; i++)
                 {
                     final.Entities.Add(entityCollection.Entities[i]);
@@ -211,8 +336,13 @@ namespace SingleMultiSelectApp
                     UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
 
                 }
-                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
-                Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + entityname + "  Records processed at : " + DateTime.Now);
+                if (rowCount > 0)
+                {
+                    System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+                    int totalrecordsprocessed1 = totalSuccessRecordCount + totalRejectedRecordCount;
+                    Console.WriteLine(totalrecordsprocessed1 + " " + entityname + "  Records processed at : " + DateTime.Now);
+                }
+                //rowCount = 0;
                 do
                 {
                     if (query.PageInfo.PageNumber == EndPageNumber)
@@ -220,6 +350,7 @@ namespace SingleMultiSelectApp
                     query.PageInfo.PageNumber += 1;
                     query.PageInfo.PagingCookie = entityCollection.PagingCookie;
                     entityCollection = service.RetrieveMultiple(query);
+                    rowCount = entityCollection.Entities.Count;
                     for (int i = 0; i < entityCollection.Entities.Count; i++)
                     {
                         final.Entities.Add(entityCollection.Entities[i]);
@@ -232,7 +363,7 @@ namespace SingleMultiSelectApp
                     }
 
                     if (entityCollection.Entities.Count > 0)
-                        Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + entityname + "  Records processed at : " + DateTime.Now);
+                        Console.WriteLine(query.PageInfo.PageNumber * RecordCountPerPage + " " + entityname + "  Records processed at : " + DateTime.Now);
                     else
                     {
                         linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", entityname, "", "There are no records at page " + query.PageInfo.PageNumber, ""));
@@ -243,22 +374,29 @@ namespace SingleMultiSelectApp
                         break;
                 }
                 while (entityCollection.MoreRecords);
-                int totalpagesprocessed = EndPageNumber - StartPageNumber + 1;
-                //Console.WriteLine(zeroRecordPages + " pages does not have any records");
-                Console.WriteLine("Total " + entityname + " records processed count:" + RecordCountPerPage * totalpagesprocessed);
-                linesInFailedFile.Add(string.Format("{0}", "Total " + entityname + " records processed count:" + RecordCountPerPage * totalpagesprocessed));
-                linesInFailedFile.Add(string.Format("{0}", "End Time : " + DateTime.Now));
-                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
-                Console.ReadKey();
+                
+                    int totalrecordsprocessed = totalSuccessRecordCount + totalRejectedRecordCount;
+                    linesInFailedFile.Add(string.Format("{0}", "Total " + entityname + " records processed count:" + totalrecordsprocessed));
+                    linesInFailedFile.Add(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " Failed Count : " + totalRejectedRecordCount));
+                    linesInFailedFile.Add(string.Format("{0}", "End Time : " + DateTime.Now));
+                    Console.WriteLine(string.Format("{0}", "Total " + entityname + " records processed count:" + totalrecordsprocessed));
+                    Console.WriteLine(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " Failed Count : " + totalRejectedRecordCount));
+                    Console.WriteLine(string.Format("{0}", "End Time : " + DateTime.Now));
+                    System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+                    Console.ReadKey();
+                
+                
             }
             catch (Exception ex)
             {
                 //Console.WriteLine("Error occured : ", ex.InnerException.Message);
-                Console.WriteLine(entityname +" Entity processing Error occured : {0} ", ex.Message);
+                Console.WriteLine(entityname + " Entity processing Error occured : {0} ", ex.Message);
                 linesInFailedFile.Add(string.Format("{0}", ex.Message));
                 System.IO.File.WriteAllLines(fileName, linesInFailedFile);
             }
         }
+
+        #endregion
 
         public static void UpdateBidReviewMultiSelect(IOrganizationService service, Guid recordid, string[] columnValues)
         {
@@ -292,6 +430,7 @@ namespace SingleMultiSelectApp
 
                 entity.Id = recordid;
                 service.Update(entity);
+                totalSuccessRecordCount++;
             }
             catch (Exception e)
             {
@@ -303,7 +442,7 @@ namespace SingleMultiSelectApp
                 {
                     optionSetValues = optionSetValues + fromAttribute[i].ToString() + " : " + columnValues[i].ToString();
                 }
-                        
+                totalRejectedRecordCount++;        
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", entityname, recordid, e.Message, optionSetValues));
                 System.IO.File.WriteAllLines(fileName, linesInFailedFile);
             }
