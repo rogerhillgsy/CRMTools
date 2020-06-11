@@ -440,7 +440,7 @@ namespace SingleMultiSelectApp
 
                 for (int i = 0; i < fromAttribute.Length; i++)
                 {
-                    optionSetValues = optionSetValues + fromAttribute[i].ToString() + " : " + columnValues[i].ToString();
+                    optionSetValues = optionSetValues + Convert.ToString(fromAttribute[i]) + " : " + Convert.ToString(columnValues[i]);
                 }
                 totalRejectedRecordCount++;        
                 linesInFailedFile.Add(string.Format("{0},{1},{2},{3}", entityname, recordid, e.Message, optionSetValues));
