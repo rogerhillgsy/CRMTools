@@ -69,6 +69,7 @@ namespace SingleMultiSelectApp
         static int zeroRecordPages = 0;
         static int totalRejectedRecordCount = 0;
         static int totalSuccessRecordCount = 0;
+        static int totalUpdateNotRequiredRecords = 0;
         public static void Main(string[] args)
         {
             try
@@ -188,7 +189,7 @@ namespace SingleMultiSelectApp
                 int columnLength = 0;
                 for (int i = 0; i < fromAttribute.Length; i++)
                 {
-                    query.ColumnSet.AddColumns(fromAttribute[i].ToString());
+                    query.ColumnSet.AddColumns(Convert.ToString(fromAttribute[i]));
                     columnLength++;
                 }
                 query.Criteria = new FilterExpression();
@@ -197,12 +198,12 @@ namespace SingleMultiSelectApp
                 FilterExpression filter1 = new FilterExpression(LogicalOperator.And);
                 for (int i = 0; i < toAttribute.Length; i++)
                 {
-                    filter1.Conditions.Add(new ConditionExpression(toAttribute[i].ToString(), ConditionOperator.Null));
+                    filter1.Conditions.Add(new ConditionExpression(Convert.ToString(toAttribute[i]), ConditionOperator.Null));
                 }
                 FilterExpression filter2 = new FilterExpression(LogicalOperator.Or);
                 for (int i = 0; i < fromAttribute.Length; i++)
                 {
-                    filter2.Conditions.Add(new ConditionExpression(fromAttribute[i].ToString(), ConditionOperator.NotNull));
+                    filter2.Conditions.Add(new ConditionExpression(Convert.ToString(fromAttribute[i]), ConditionOperator.NotNull));
                 }
                 filter.AddFilter(filter1);
                 filter.AddFilter(filter2);
@@ -219,7 +220,7 @@ namespace SingleMultiSelectApp
                 //QueryExpressionToFetchXmlResponse resp = (QueryExpressionToFetchXmlResponse)service.Execute(req);
 
                 //string myfetch = resp.FetchXml;
-                //
+                ////
                 EntityCollection entityCollection = service.RetrieveMultiple(query);
                 EntityCollection final = new EntityCollection();
                 string[] columnValues = new string[columnLength];
@@ -230,7 +231,7 @@ namespace SingleMultiSelectApp
                     final.Entities.Add(entityCollection.Entities[i]);
                     for (int j = 0; j < fromAttribute.Length; j++)
                     {
-                        columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(fromAttribute[j].ToString());
+                        columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(Convert.ToString(fromAttribute[j]));
                     }
                     UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
 
@@ -238,7 +239,7 @@ namespace SingleMultiSelectApp
                 if (rowCount > 0)
                 {
                     System.IO.File.WriteAllLines(fileName, linesInFailedFile);
-                    int totalrecordsprocessed1 = totalSuccessRecordCount + totalRejectedRecordCount;
+                    int totalrecordsprocessed1 = totalSuccessRecordCount + totalRejectedRecordCount + +totalUpdateNotRequiredRecords;
                     Console.WriteLine(totalrecordsprocessed1 + " " + entityname + "  Records processed at : " + DateTime.Now);
                 }
                 //rowCount = 0;
@@ -255,7 +256,7 @@ namespace SingleMultiSelectApp
                         final.Entities.Add(entityCollection.Entities[i]);
                         for (int j = 0; j < fromAttribute.Length; j++)
                         {
-                            columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(fromAttribute[j].ToString());
+                            columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(Convert.ToString(fromAttribute[j]));
                         }
                         UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
 
@@ -274,12 +275,12 @@ namespace SingleMultiSelectApp
                 }
                 while (entityCollection.MoreRecords);
 
-                int totalrecordsprocessed = totalSuccessRecordCount + totalRejectedRecordCount;
+                int totalrecordsprocessed = totalSuccessRecordCount + totalRejectedRecordCount + totalUpdateNotRequiredRecords;
                 linesInFailedFile.Add(string.Format("{0}", "Total " + entityname + " records processed count:" + totalrecordsprocessed));
-                linesInFailedFile.Add(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " Failed Count : " + totalRejectedRecordCount));
+                linesInFailedFile.Add(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " , Failed Count : " + totalRejectedRecordCount + " , Update not required Count : " + totalUpdateNotRequiredRecords));
                 linesInFailedFile.Add(string.Format("{0}", "End Time : " + DateTime.Now));
                 Console.WriteLine(string.Format("{0}", "Total " + entityname + " records processed count:" + totalrecordsprocessed));
-                Console.WriteLine(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " Failed Count : " + totalRejectedRecordCount));
+                Console.WriteLine(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " Failed Count : " + totalRejectedRecordCount + " Update not required Count : " + totalUpdateNotRequiredRecords));
                 Console.WriteLine(string.Format("{0}", "End Time : " + DateTime.Now));
                 System.IO.File.WriteAllLines(fileName, linesInFailedFile);
                 Console.ReadKey();
@@ -305,7 +306,7 @@ namespace SingleMultiSelectApp
                 int columnLength = 0;
                 for (int i = 0; i < fromAttribute.Length; i++)
                 {
-                    query.ColumnSet.AddColumns(fromAttribute[i].ToString());
+                    query.ColumnSet.AddColumns(Convert.ToString(fromAttribute[i]));
                     columnLength++;
                 }
                 query.Criteria = new FilterExpression();
@@ -313,14 +314,14 @@ namespace SingleMultiSelectApp
                 query.Criteria.FilterOperator = LogicalOperator.Or;
                 for (int i = 0; i < fromAttribute.Length; i++)
                 {
-                    query.Criteria.AddCondition(fromAttribute[i].ToString(), ConditionOperator.NotNull);
+                    query.Criteria.AddCondition(Convert.ToString(fromAttribute[i]), ConditionOperator.NotNull);
                 }
-                                
+
                 query.PageInfo = new PagingInfo();
                 query.PageInfo.Count = RecordCountPerPage;
                 query.PageInfo.PageNumber = StartPageNumber;
                 query.PageInfo.ReturnTotalRecordCount = true;
-                
+
                 EntityCollection entityCollection = service.RetrieveMultiple(query);
                 EntityCollection final = new EntityCollection();
                 string[] columnValues = new string[columnLength];
@@ -331,7 +332,7 @@ namespace SingleMultiSelectApp
                     final.Entities.Add(entityCollection.Entities[i]);
                     for (int j = 0; j < fromAttribute.Length; j++)
                     {
-                        columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(fromAttribute[j].ToString());
+                        columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(Convert.ToString(fromAttribute[j]));
                     }
                     UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
 
@@ -356,7 +357,7 @@ namespace SingleMultiSelectApp
                         final.Entities.Add(entityCollection.Entities[i]);
                         for (int j = 0; j < fromAttribute.Length; j++)
                         {
-                            columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(fromAttribute[j].ToString());
+                            columnValues[j] = entityCollection.Entities[i].GetAttributeValue<string>(Convert.ToString(fromAttribute[j]));
                         }
                         UpdateBidReviewMultiSelect(service, entityCollection.Entities[i].GetAttributeValue<Guid>(entityprimaryid), columnValues);
 
@@ -374,18 +375,16 @@ namespace SingleMultiSelectApp
                         break;
                 }
                 while (entityCollection.MoreRecords);
-                
-                    int totalrecordsprocessed = totalSuccessRecordCount + totalRejectedRecordCount;
-                    linesInFailedFile.Add(string.Format("{0}", "Total " + entityname + " records processed count:" + totalrecordsprocessed));
-                    linesInFailedFile.Add(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " Failed Count : " + totalRejectedRecordCount));
-                    linesInFailedFile.Add(string.Format("{0}", "End Time : " + DateTime.Now));
-                    Console.WriteLine(string.Format("{0}", "Total " + entityname + " records processed count:" + totalrecordsprocessed));
-                    Console.WriteLine(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " Failed Count : " + totalRejectedRecordCount));
-                    Console.WriteLine(string.Format("{0}", "End Time : " + DateTime.Now));
-                    System.IO.File.WriteAllLines(fileName, linesInFailedFile);
-                    Console.ReadKey();
-                
-                
+
+                int totalrecordsprocessed = totalSuccessRecordCount + totalRejectedRecordCount + totalUpdateNotRequiredRecords;
+                linesInFailedFile.Add(string.Format("{0}", "Total " + entityname + " records processed count:" + totalrecordsprocessed));
+                linesInFailedFile.Add(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " Failed Count : " + totalRejectedRecordCount));
+                linesInFailedFile.Add(string.Format("{0}", "End Time : " + DateTime.Now));
+                Console.WriteLine(string.Format("{0}", "Total " + entityname + " records processed count:" + totalrecordsprocessed));
+                Console.WriteLine(string.Format("{0}", "Success Count : " + totalSuccessRecordCount + " Failed Count : " + totalRejectedRecordCount));
+                Console.WriteLine(string.Format("{0}", "End Time : " + DateTime.Now));
+                System.IO.File.WriteAllLines(fileName, linesInFailedFile);
+                Console.ReadKey();
             }
             catch (Exception ex)
             {
@@ -403,14 +402,14 @@ namespace SingleMultiSelectApp
             try
             {
                 Entity entity = new Entity(entityname);
-
+                bool isDirty = false;
                 for (int i = 0; i< columnValues.Length; i++)
                 {
                     string columnVal = Convert.ToString(columnValues[i]);
                     
                     if (columnVal != string.Empty && columnVal != null)
                     {
-                        Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, entityname, fromOptionSet[i].ToString());
+                        Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, entityname, Convert.ToString(fromOptionSet[i]));
                         OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
                         string[] arr = columnVal.Split(',');
                         foreach (var item in arr)
@@ -420,17 +419,29 @@ namespace SingleMultiSelectApp
                                 if (opset.ContainsKey(Convert.ToInt32(item)))
                                 {
                                     collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
+                                    isDirty = true;
+                                }
+                                else
+                                {
+                                    Console.WriteLine(item +" not there in new multiselect " + Convert.ToString(toAttribute[i]));
+                                    linesInFailedFile.Add(item + " not there in new multiselect " + Convert.ToString(toAttribute[i]));
                                 }
                             }
                         }
 
-                        entity[toAttribute[i].ToString()] = collectionOptionSetValues;
+                        entity[Convert.ToString(toAttribute[i])] = collectionOptionSetValues;
                     }
-                }                              
-
-                entity.Id = recordid;
-                service.Update(entity);
-                totalSuccessRecordCount++;
+                }
+                if (isDirty == true)
+                {
+                    entity.Id = recordid;
+                    service.Update(entity);
+                    totalSuccessRecordCount++;
+                }
+                else
+                {
+                    totalUpdateNotRequiredRecords++;
+                }
             }
             catch (Exception e)
             {
