@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidReview", "BidReview\BidR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SingleMultiSelectApp", "SingleMultiSelectApp\SingleMultiSelectApp.csproj", "{F27E92F7-F3F5-49CB-89EE-1B16C5A74579}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrganizationClientSectorClientTypeMapping", "OrganizationClientSectorClientTypeMapping\OrganizationClientSectorClientTypeMapping.csproj", "{B0852630-051C-4408-816B-67162CC90D8E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{F27E92F7-F3F5-49CB-89EE-1B16C5A74579}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F27E92F7-F3F5-49CB-89EE-1B16C5A74579}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F27E92F7-F3F5-49CB-89EE-1B16C5A74579}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0852630-051C-4408-816B-67162CC90D8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0852630-051C-4408-816B-67162CC90D8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0852630-051C-4408-816B-67162CC90D8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0852630-051C-4408-816B-67162CC90D8E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
