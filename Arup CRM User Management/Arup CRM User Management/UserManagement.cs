@@ -18,20 +18,54 @@ using System.ServiceModel.Description;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.Services.AppAuthentication;
 //using CrmEarlyBound;
 
 //********************** Batch Job for Product Backlog Item 33479 to manage CRM user licenses ********************
 
 namespace Arup_CRM_User_Management
 {
-    class UserManagement
+    class UserManagement : IConfig
     {
         private static IOrganizationService _orgService;
         private static IOrganizationService _orgTrainingService;
+
+        private static string _keyVaultPath;
+        private static string _CRMHubPWKey = String.Empty;
+        private static Task<string> _CRMHubPWTask;
+        string IConfig.KeyVaultPath => KeyVaultPath;
+        static string password = string.Empty;
+
+        public static string KeyVaultPath
+        {
+            get
+            {
+                if (String.IsNullOrEmpty(_keyVaultPath))
+                {
+                    _keyVaultPath = ConfigurationManager.AppSettings.Get("KeyVaultPath");
+                }
+
+                return _keyVaultPath;
+            }
+        }
+
+        public string CRMHubPWKey
+        {
+            get
+            {
+                _CRMHubPWTask.Wait();
+                return _CRMHubPWKey;
+            }
+        }
+
         static void Main(string[] args)
         {
             try
             {
+                _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
+                _CRMHubPWTask.Wait();
+
                 CrmConnection connection = CrmConnection.Parse(
                 ConfigurationManager.ConnectionStrings["CRMConnectionString"].ConnectionString);
                 CrmConnection connectionTraining = CrmConnection.Parse(ConfigurationManager.ConnectionStrings["CRMConnectionTrainingString"].ConnectionString);
@@ -50,9 +84,9 @@ namespace Arup_CRM_User_Management
                 //_orgService = CreateService("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
                 string serverUrl = ConfigurationManager.AppSettings["serverUrl"];
                 string userId = ConfigurationManager.AppSettings["usersId"];
-                string password = ConfigurationManager.AppSettings["password"];
+                // string password = ConfigurationManager.AppSettings["password"];
                 string domain = ConfigurationManager.AppSettings["domain"];
-                IOrganizationService _orgService = CreateService(serverUrl, userId, password, domain);
+                _orgService = CreateService(serverUrl, userId, password, domain);
                 //using (_orgService = new OrganizationService(connection))
                 //{
                 // Log the execution start to Execution Log
@@ -79,8 +113,8 @@ namespace Arup_CRM_User_Management
                   "ccrm_donotdeactivate", ConditionOperator.NotEqual, true);
                 userquery.Criteria.AddCondition(
                   "createdon", ConditionOperator.LessEqual, createdOnChkDt);
-                //userquery.Criteria.AddCondition(
-                //  "systemuserid", ConditionOperator.Equal, _systemUserId);
+                userquery.Criteria.AddCondition(
+                  "systemuserid", ConditionOperator.Equal, _systemUserId);
 
                 // Assign the pageinfo properties to the query expression.
                 userquery.PageInfo = new PagingInfo();
@@ -454,6 +488,52 @@ namespace Arup_CRM_User_Management
             log = new StreamWriter(fileStream);
             log.WriteLine(strLog);
             log.Close();
+        }
+
+        public static async Task<string> GetSecretTask(string secretName, Action<string> callback)
+        {
+            try
+            {
+                var azureServiceTokenprovider = new AzureServiceTokenProvider();
+                var keyVaultClient =
+                    new KeyVaultClient(
+                        new KeyVaultClient.AuthenticationCallback(azureServiceTokenprovider.KeyVaultTokenCallback));
+                //Log($"Accessing Key vault path {KeyVaultPath.TrimEnd("/".ToCharArray())}/secrets/{secretName}");
+                var result = String.Empty;
+
+                var getSecretTask = keyVaultClient
+                    .GetSecretAsync($"{KeyVaultPath.TrimEnd("/".ToCharArray())}/secrets/{secretName}").ContinueWith(t =>
+                    {
+                        if (t.IsFaulted)
+                        {
+                            //Log($"GetSecretTask failed : {t.Exception.Message}");
+                            foreach (var exception in t.Exception.InnerExceptions)
+                            {
+                                //Log($"  {exception.Message}");
+                            }
+                        }
+                        else
+                        {
+                            result = t.Result.Value;
+                            callback?.Invoke(t.Result.Value);
+                            password = t.Result.Value;
+                            //processRecords();
+                            //callback.Invoke()
+                        }
+                    }
+                    );
+                await getSecretTask;
+
+                // example: - "https://crmcloudkeys.vault.azure.net/secrets/oracle-test-connection"
+
+                //Log($"Obtained secret \"{secretName}\" from keyvault");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                //Log($"Failed to get secret ${secretName} message: {ex.Message}");
+                throw;
+            }
         }
 
     }
