@@ -416,6 +416,8 @@ namespace SingleMultiSelectApp
                             {
                                 Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, entityname, Convert.ToString(fromOptionSet[i]));
                                 OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
+                                //string[] delimiter = { "||" };
+                                //string[] arr = columnVal.Split(delimiter, StringSplitOptions.None);
                                 string[] arr = columnVal.Split(',');
                                 foreach (var item in arr)
                                 {
@@ -425,18 +427,78 @@ namespace SingleMultiSelectApp
                                         {
                                             if(!collectionOptionSetValues.Contains(new OptionSetValue(Convert.ToInt32("100000003"))))
                                                  collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32("100000003")));
+
+                                            isDirty = true;
                                         }
                                         else
-                                            collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
-
-                                        isDirty = true;
+                                        {
+                                            if (opset.ContainsKey(Convert.ToInt32(item)))
+                                            {
+                                                collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
+                                                isDirty = true;
+                                            }
+                                            else
+                                            {
+                                                //Console.WriteLine(item +" not there in new multiselect " + Convert.ToString(toAttribute[i]));
+                                                linesInFailedFile.Add(item + " not there in new multiselect " + Convert.ToString(toAttribute[i]));
+                                            }
+                                        }                                       
+                                    }
+                                    else
+                                    {
+                                        linesInFailedFile.Add(item + " not there in new multiselect " + Convert.ToString(toAttribute[i]));
                                     }
                                 }
 
                                 entity[Convert.ToString(toAttribute[i])] = collectionOptionSetValues;
 
-                                entity.Id = recordid;
-                                service.Update(entity);
+                            }
+                        }
+                        else if (Convert.ToString(fromAttribute[i]) == "ccrm_disciplinesvalue")
+                        {
+                            string columnVal = Convert.ToString(columnValues[i]);
+                            //columnVal = "100000004,100000005,100000007,100000008,100000009";
+                            //As all the above 5 values been merged into single 100000003 value. So we written this logic specific to ccrm_othernetworksval
+                            if (columnVal != string.Empty && columnVal != null)
+                            {
+                                Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, entityname, Convert.ToString(fromOptionSet[i]));
+                                OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
+                                //string[] delimiter = { "||" };
+                                //string[] arr = columnVal.Split(delimiter, StringSplitOptions.None);
+                                string[] arr = columnVal.Split(',');
+                                foreach (var item in arr)
+                                {
+                                    if (item != null && item.Trim() != string.Empty && item.Trim() != "" && item.All(char.IsDigit) == true)
+                                    {
+                                        if (item == "125")
+                                        {
+                                            if (!collectionOptionSetValues.Contains(new OptionSetValue(Convert.ToInt32("770000000"))))
+                                                collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32("770000000")));
+
+                                            isDirty = true;
+                                        }
+                                        else
+                                        {
+                                            if (opset.ContainsKey(Convert.ToInt32(item)))
+                                            {
+                                                collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(item)));
+                                                isDirty = true;
+                                            }
+                                            else
+                                            {
+                                                //Console.WriteLine(item +" not there in new multiselect " + Convert.ToString(toAttribute[i]));
+                                                linesInFailedFile.Add(item + " not there in new multiselect " + Convert.ToString(toAttribute[i]));
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        linesInFailedFile.Add(item + " not there in new multiselect " + Convert.ToString(toAttribute[i]));
+                                    }
+                                }
+
+                                entity[Convert.ToString(toAttribute[i])] = collectionOptionSetValues;
+
                             }
                         }
                         else
@@ -447,6 +509,8 @@ namespace SingleMultiSelectApp
                             {
                                 Dictionary<Nullable<int>, string> opset = RetriveOptionSetLabels(service, entityname, Convert.ToString(fromOptionSet[i]));
                                 OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
+                                //string[] delimiter = { "||" };
+                                //string[] arr = columnVal.Split(delimiter, StringSplitOptions.None);
                                 string[] arr = columnVal.Split(',');
                                 foreach (var item in arr)
                                 {
@@ -462,6 +526,10 @@ namespace SingleMultiSelectApp
                                             //Console.WriteLine(item +" not there in new multiselect " + Convert.ToString(toAttribute[i]));
                                             linesInFailedFile.Add(item + " not there in new multiselect " + Convert.ToString(toAttribute[i]));
                                         }
+                                    }
+                                    else
+                                    {
+                                        linesInFailedFile.Add(item + " not there in new multiselect " + Convert.ToString(toAttribute[i]));
                                     }
                                 }
 
@@ -495,6 +563,10 @@ namespace SingleMultiSelectApp
                                         //Console.WriteLine(item +" not there in new multiselect " + Convert.ToString(toAttribute[i]));
                                         linesInFailedFile.Add(item + " not there in new multiselect " + Convert.ToString(toAttribute[i]));
                                     }
+                                }
+                                else
+                                {
+                                    linesInFailedFile.Add(item + " not there in new multiselect " + Convert.ToString(toAttribute[i]));
                                 }
                             }
 
