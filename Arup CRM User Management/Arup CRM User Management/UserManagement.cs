@@ -18,6 +18,7 @@ using System.ServiceModel.Description;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using System.Runtime.CompilerServices;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Xrm.Tooling.Connector;
@@ -68,36 +69,27 @@ namespace Arup_CRM_User_Management
                 _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
                 _CRMHubPWTask.Wait();
 
-                //CrmConnection connection = CrmConnection.Parse(
-                //ConfigurationManager.ConnectionStrings["CRMConnectionString"].ConnectionString);
-                //CrmConnection connectionTraining = CrmConnection.Parse(ConfigurationManager.ConnectionStrings["CRMConnectionTrainingString"].ConnectionString);
+                if (_CRMHubPWTask.Status != TaskStatus.RanToCompletion)
+                {
+                    throw _CRMHubPWTask.Exception;
+                }
+                
                 List<string> errorList = new List<string>(); //List to store error for each user record
                 int inactivitydays = int.Parse(ConfigurationManager.AppSettings["InactivityCheckDays"]);
                 DateTime createdOnChkDt = DateTime.Now.AddDays(-inactivitydays);
                 int phase1days = int.Parse(ConfigurationManager.AppSettings["Phase1Days"]);
                 int reminderdays = int.Parse(ConfigurationManager.AppSettings["ReminderDays"]);
-                //string execlogpath = ConfigurationManager.AppSettings["ExecutionLogPath"];
-                //string errorlogpath = ConfigurationManager.AppSettings["ErrorLogPath"];
-                //string executiondttime = DateTime.Now.ToString("yyyyMMddTHHmmss");
+
                 int pageSize = 5000;
                 int pageNumber = 1;
                 string pagingCookie = string.Empty;
                 int totalRecordCount = 0;
-                //_orgService = CreateService("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
-                //string serverUrl = ConfigurationManager.AppSettings["serverUrl"];
-                //string userId = ConfigurationManager.AppSettings["usersId"];
-                //// string password = ConfigurationManager.AppSettings["password"];
-                //string domain = ConfigurationManager.AppSettings["domain"];
-                //// _orgService = CreateService(serverUrl, userId, password, domain);
+
                 string ConnectionString = ConfigurationManager.ConnectionStrings["CrmCloudConnection"].ConnectionString;
                 ConnectionString = ConnectionString.Replace("%Password%", password);
-                ConnectionString = Environment.ExpandEnvironmentVariables(ConnectionString);
                 var CrmService = new CrmServiceClient(ConnectionString);
                 _orgService = CrmService.OrganizationServiceProxy;
-                //using (_orgService = new OrganizationService(connection))
-                //{
-                // Log the execution start to Execution Log
-                //File.WriteAllText(execlogpath + @"\Arup User Management Execution Log_" + executiondttime + ".txt", "***************Arup User Management Batch Job***************" + Environment.NewLine);
+                
                 WriteLog("***************Arup User Management Batch Job***************" + Environment.NewLine, false);
                 //File.AppendAllText(execlogpath + @"\Arup User Management Execution Log_" + executiondttime + ".txt", "Arup User Management Batch Job execution started at:" + DateTime.Now + Environment.NewLine);
                 WriteLog("Arup User Management Batch Job execution started at:" + DateTime.Now + Environment.NewLine + Environment.NewLine, false);
@@ -319,49 +311,6 @@ namespace Arup_CRM_User_Management
             }
         }
 
-        #region CRM CONNECTION
-        //public static IOrganizationService CreateService(string serverUrl, string userId, string password, string domain)
-        //{
-        //    Console.WriteLine("\n\nConnecting to CRM..........\n\n");
-
-        //    //objDataValidation.CreateLog("Before CRm  Creation");
-        //    IOrganizationService _service;
-
-        //    ClientCredentials Credentials = new ClientCredentials();
-        //    ClientCredentials devivceCredentials = new ClientCredentials();
-
-        //    Credentials.UserName.UserName = domain + "\\" + userId;
-        //    //Credentials.UserName.UserName = userId;
-        //    Credentials.UserName.Password = password;
-        //    Uri OrganizationUri = new Uri(serverUrl);
-        //    //Here I am using APAC.
-        //    Uri HomeRealmUri = null;
-        //    //To get device id and password.
-        //    //Online: For online version, we need to call this method to get device id.
-        //    try
-        //    {
-        //        if (!string.IsNullOrEmpty(serverUrl) && serverUrl.Contains("https"))
-        //        {
-        //            ServicePointManager.ServerCertificateValidationCallback = delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return true; };
-        //        }
-        //        using (OrganizationServiceProxy serviceProxy = new OrganizationServiceProxy(OrganizationUri, HomeRealmUri, Credentials, devivceCredentials))
-        //        {
-        //            //serviceProxy.ClientCredentials.UserName.UserName = userId; // Your Online username.Eg:username@yourco mpany.onmicrosoft.com";
-        //            //serviceProxy.ClientCredentials.UserName.Password = password; //Your Online password
-        //            serviceProxy.ServiceConfiguration.CurrentServiceEndpoint.Behaviors.Add(new ProxyTypesBehavior());
-        //            serviceProxy.Timeout = new TimeSpan(0, 120, 0);
-        //            _service = (IOrganizationService)serviceProxy;
-        //        }
-        //        Console.WriteLine("Connection Established!!!\n\n");
-        //        return _service;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new System.Exception("<Error>Problem in creating CRM Service</Error>" + ex.Message);
-        //    }
-        //}
-
-        #endregion
         private static void DisableUserInTraining(IOrganizationService _orgService, SystemUser user)
         {
             // find the user in training
@@ -505,7 +454,6 @@ namespace Arup_CRM_User_Management
                 var keyVaultClient =
                     new KeyVaultClient(
                         new KeyVaultClient.AuthenticationCallback(azureServiceTokenprovider.KeyVaultTokenCallback));
-                //Log($"Accessing Key vault path {KeyVaultPath.TrimEnd("/".ToCharArray())}/secrets/{secretName}");
                 var result = String.Empty;
 
                 var getSecretTask = keyVaultClient
@@ -513,27 +461,18 @@ namespace Arup_CRM_User_Management
                     {
                         if (t.IsFaulted)
                         {
-                            //Log($"GetSecretTask failed : {t.Exception.Message}");
-                            foreach (var exception in t.Exception.InnerExceptions)
-                            {
-                                //Log($"  {exception.Message}");
-                            }
+                            throw t.Exception;
                         }
                         else
                         {
                             result = t.Result.Value;
                             callback?.Invoke(t.Result.Value);
                             password = t.Result.Value;
-                            //processRecords();
-                            //callback.Invoke()
                         }
                     }
                     );
                 await getSecretTask;
 
-                // example: - "https://crmcloudkeys.vault.azure.net/secrets/oracle-test-connection"
-
-                //Log($"Obtained secret \"{secretName}\" from keyvault");
                 return result;
             }
             catch (Exception ex)
