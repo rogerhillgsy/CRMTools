@@ -108,6 +108,13 @@ namespace DefaultHomePageSubAreaUpdate
             queryUser.ColumnSet = new ColumnSet("systemuserid", "arup_employmentstatus", "arup_defaultdataupdated");
             queryUser.Criteria.AddCondition(new ConditionExpression("arup_employmentstatus", ConditionOperator.Equal, 770000000));
             queryUser.Criteria.AddCondition(new ConditionExpression("arup_defaultdataupdated", ConditionOperator.NotEqual, true));
+
+            queryUser.Criteria.AddCondition(new ConditionExpression("internalemailaddress", ConditionOperator.NotEqual, "Powerqueryonline@onmicrosoft.com"));
+            queryUser.Criteria.AddCondition(new ConditionExpression("internalemailaddress", ConditionOperator.NotEqual, "Dynamics365Athena@onmicrosoft.com"));
+            queryUser.Criteria.AddCondition(new ConditionExpression("internalemailaddress", ConditionOperator.NotEqual, "Dynamics365Athena2@onmicrosoft.com"));
+            queryUser.Criteria.AddCondition(new ConditionExpression("internalemailaddress", ConditionOperator.NotEqual, "Dynamics365EnterpriseSales@onmicrosoft.com"));
+            queryUser.Criteria.AddCondition(new ConditionExpression("isdisabled", ConditionOperator.Equal, false)); //enabled user
+
             LinkEntity lnkUserSetting = new LinkEntity("systemuser", "usersettings", "systemuserid", "systemuserid", JoinOperator.Inner);
             lnkUserSetting.Columns = new ColumnSet("systemuserid", "homepagearea", "homepagesubarea");
             lnkUserSetting.EntityAlias = "usersettings";
@@ -149,6 +156,8 @@ namespace DefaultHomePageSubAreaUpdate
         /// <param name="pageNumber">pageNumber</param>
         static void UpdateUserRecord(EntityCollection collUserSettings, IOrganizationService service, StreamWriter log, int pageNumber, string defaultHomePageArea, string defaultHomePageSubArea)
         {
+         
+
             ExecuteTransactionRequest transactionRequest = new ExecuteTransactionRequest()
             {
                 Requests = new OrganizationRequestCollection()
@@ -168,7 +177,7 @@ namespace DefaultHomePageSubAreaUpdate
                     {
                       
                         homePageArea = ((AliasedValue)userSetting["usersettings.homepagearea"]).Value.ToString();
-                        if (homePageArea == "HLP")
+                        if (homePageArea == "Workplace")
                         {
                             homePageArea = "<Default>";
                         }
@@ -219,18 +228,17 @@ namespace DefaultHomePageSubAreaUpdate
 
                 Console.WriteLine("Before Calling Execute for transactionRequest for page {0}", pageNumber);
                 Log(String.Format("Before Calling Execute for transactionRequest for page {0}", pageNumber), log);
-                ExecuteTransactionResponse transactResponse = (ExecuteTransactionResponse)service.Execute(transactionRequest);
+
+               
+
+                 ExecuteTransactionResponse transactResponse = (ExecuteTransactionResponse)service.Execute(transactionRequest);
+
+
                 Console.WriteLine("After Calling Execute for transactionRequest for page {0}", pageNumber);
                 Log(String.Format("After Calling Execute for transactionRequest for page {0}", pageNumber), log);
                 Log("--------------------------------", log);
 
-                // Display the results returned in the responses
-                foreach (var response in transactResponse.Responses)
-                {
-                    if (response.Results != null)
-                        Log(response.ResponseName, log);
-
-                }
+              
 
             }
             catch (FaultException<OrganizationServiceFault> fault)
