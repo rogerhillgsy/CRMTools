@@ -319,7 +319,7 @@ namespace Arup_CRM_User_Management
             }
         }
 
-        //#region CRM CONNECTION
+        #region CRM CONNECTION
         //public static IOrganizationService CreateService(string serverUrl, string userId, string password, string domain)
         //{
         //    Console.WriteLine("\n\nConnecting to CRM..........\n\n");
