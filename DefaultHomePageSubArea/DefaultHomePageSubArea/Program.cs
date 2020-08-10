@@ -177,7 +177,7 @@ namespace DefaultHomePageSubAreaUpdate
                     {
                       
                         homePageArea = ((AliasedValue)userSetting["usersettings.homepagearea"]).Value.ToString();
-                        if (homePageArea == "Workplace")
+                        if (homePageArea == "HLP") // This is needed to fix the recursion issue with old record. In Nov release, this block can be removed as there is no 'HLP' homepagearea in Cloud
                         {
                             homePageArea = "<Default>";
                         }

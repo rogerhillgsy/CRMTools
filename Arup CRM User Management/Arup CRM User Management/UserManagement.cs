@@ -112,8 +112,8 @@ namespace Arup_CRM_User_Management
                   "ccrm_donotdeactivate", ConditionOperator.NotEqual, true);
                 userquery.Criteria.AddCondition(
                   "createdon", ConditionOperator.LessEqual, createdOnChkDt);
-                userquery.Criteria.AddCondition(
-                  "systemuserid", ConditionOperator.Equal, _systemUserId);
+                //userquery.Criteria.AddCondition(
+                //  "systemuserid", ConditionOperator.Equal, _systemUserId);
 
                 // Assign the pageinfo properties to the query expression.
                 userquery.PageInfo = new PagingInfo();
