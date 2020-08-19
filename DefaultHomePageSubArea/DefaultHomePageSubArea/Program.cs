@@ -109,6 +109,8 @@ namespace DefaultHomePageSubAreaUpdate
             queryUser.Criteria.AddCondition(new ConditionExpression("arup_employmentstatus", ConditionOperator.Equal, 770000000));
             queryUser.Criteria.AddCondition(new ConditionExpression("arup_defaultdataupdated", ConditionOperator.NotEqual, true));
 
+            queryUser.Criteria.AddCondition(new ConditionExpression("domainname", ConditionOperator.EndsWith, "@arup.com"));
+
             queryUser.Criteria.AddCondition(new ConditionExpression("internalemailaddress", ConditionOperator.NotEqual, "Powerqueryonline@onmicrosoft.com"));
             queryUser.Criteria.AddCondition(new ConditionExpression("internalemailaddress", ConditionOperator.NotEqual, "Dynamics365Athena@onmicrosoft.com"));
             queryUser.Criteria.AddCondition(new ConditionExpression("internalemailaddress", ConditionOperator.NotEqual, "Dynamics365Athena2@onmicrosoft.com"));
