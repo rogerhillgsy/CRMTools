@@ -28,8 +28,9 @@ namespace NeglectedOppsCloseTool
         static void Main(string[] args)
         {
             string Progress = "Start Neglected Opps Close Tool";
+            string logFilePath = ConfigurationManager.AppSettings.Get("LogFilePath");
 
-            fileName = "CloseNeglectedOppsErrorLog_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".txt";
+            fileName = logFilePath + "CloseNeglectedOppsErrorLog_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".txt";
             try
             {
                 #region Setup DB Connections

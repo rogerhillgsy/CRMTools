@@ -49,11 +49,12 @@ namespace CASLUpdateContacts
         {
             try
             {
-                fileName = "CASLUpdateContacts_Log_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".txt";
+                string logFilePath = ConfigurationManager.AppSettings.Get("LogFilePath");
+                fileName = logFilePath + "CASLUpdateContacts_Log_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".txt";
                 _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
                 _CRMHubPWTask.Wait();
                 logEntry = new List<string>();
-                logEntry.Add(string.Format("{0}", "Start Time : " + DateTime.Now));
+                logEntry.Add(string.Format("{0}", "Start Time : " + DateTime.Now));              
 
                 Console.WriteLine("\n\nConnecting to CRM..........\n\n");
                 logEntry.Add(string.Format("{0}", "\nConnecting to CRM..........\n"));

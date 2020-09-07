@@ -50,7 +50,8 @@ namespace UpdateOrgsCASLBatch
         {
             try
             {
-                fileName = "UpdateOrgsCASLBatch_Log_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".txt";
+                string logFilePath = ConfigurationManager.AppSettings.Get("LogFilePath");
+                fileName = logFilePath + "UpdateOrgsCASLBatch_Log_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".txt";
                 _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
                 _CRMHubPWTask.Wait();
                 logEntry = new List<string>();
