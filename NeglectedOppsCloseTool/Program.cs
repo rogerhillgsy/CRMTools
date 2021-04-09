@@ -17,25 +17,30 @@ using System.Net;
 using Microsoft.Xrm.Sdk.Client;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using Microsoft.Xrm.Tooling.Connector;
 
 namespace NeglectedOppsCloseTool
 {
     class Program
     {
+        static List<string> logEntry = null;
+        static string fileName = "";
         static void Main(string[] args)
         {
             string Progress = "Start Neglected Opps Close Tool";
-            
+            string logFilePath = ConfigurationManager.AppSettings.Get("LogFilePath");
+
+            fileName = logFilePath + "CloseNeglectedOppsErrorLog_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".txt";
             try
             {
                 #region Setup DB Connections
                 //CRM DB - Change connection to UAT or Live
-                CrmConnection con = new CrmConnection("ARUP_CRM");
+                //CrmConnection con = new CrmConnection("ARUP_CRM");
                 //CrmConnection con = new CrmConnection("CRM_Live");
                 Progress = "Connection to CRM made";
                 
                 //Housekeeping DB - Change connection to UAT or Live
-                SqlConnection HKconn = new SqlConnection(ConfigurationManager.ConnectionStrings["CRM_Environment"].ConnectionString);
+                //SqlConnection HKconn = new SqlConnection(ConfigurationManager.ConnectionStrings["CRM_Environment"].ConnectionString);
                 //SqlConnection HKconn = new SqlConnection(ConfigurationManager.ConnectionStrings["HouseKeeping_Live"].ConnectionString);                 
                 //SqlConnection HKconn = new SqlConnection( ConfigurationManager.ConnectionStrings["HouseKeeping_Chee"].ConnectionString);
                 Progress = "Connection to Housekeeping DB made";
@@ -43,7 +48,7 @@ namespace NeglectedOppsCloseTool
                 #endregion
 
                 #region Find Neglected Opportunities to Close
-              
+                
                 string fetchQuery = @"<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
                   <entity name='opportunity'>
                     <attribute name='name' />
@@ -60,13 +65,23 @@ namespace NeglectedOppsCloseTool
                     </filter>
                   </entity>
                 </fetch>";
-                //IOrganizationService service = new OrganizationService(con);  
-                string serverUrl = ConfigurationManager.AppSettings["serverUrl"];
-                string userId = ConfigurationManager.AppSettings["userId"];
-                string password = ConfigurationManager.AppSettings["password"];
-                string domain = ConfigurationManager.AppSettings["domain"];
-                //IOrganizationService service = CreateService("https://arupgroupcloud.crm4.dynamics.com/XRMServices/2011/Organization.svc", "crm.hub@arup.com", "CIm2$98pRt", "arup");
-                IOrganizationService service = CreateService(serverUrl, userId, password, domain);
+
+                logEntry = new List<string>();
+                logEntry.Add(string.Format("{0}", "Start Time : " + DateTime.Now));
+
+                Console.WriteLine("\n\nConnecting to CRM..........\n\n");
+                logEntry.Add(string.Format("{0}", "\n\nConnecting to CRM..........\n"));
+                //Log("\n\nConnecting to CRM..........\n\n", logTxtWriter);
+                IOrganizationService service;
+                string password1 = "CIm2$98pRt";
+                string ConnectionString = ConfigurationManager.ConnectionStrings["CrmCloudConnection"].ConnectionString;
+                ConnectionString = ConnectionString.Replace("%Password%", password1);
+                //Console.WriteLine("ConnectionString is ::" + ConnectionString);
+                var CrmService = new CrmServiceClient(ConnectionString);
+                service = CrmService.OrganizationServiceProxy;
+                Console.WriteLine("Connection Established!!!\n\n");
+                //Log("\n\nConnection Established!!!\n\n", logTxtWriter);
+                logEntry.Add(string.Format("{0}", "\n\nConnection Established..........\n"));
                 //Implemented loop to handle the 5000 record limit
                 while (true)
                 {
@@ -76,8 +91,7 @@ namespace NeglectedOppsCloseTool
 
                     //Open conenction to Housekeeping DB if opportunities to close
                     if (fetchResults.Entities.Count > 0)
-                    {
-                        
+                    {                        
                         //HKconn.Open();
                         var updateOptyError = "";
                         foreach (var oppo in fetchResults.Entities)
@@ -85,10 +99,9 @@ namespace NeglectedOppsCloseTool
                             #region Close Neglected Opportunity
                             try
                             {
-                                String closeType = "";
-                                
-                                Console.WriteLine("Opportunity" + " " + oppo.GetAttributeValue("opportunityid") + " " + oppo.GetAttributeValue("name"));
-
+                                String closeType = "";                                
+                                //Console.WriteLine("Opportunity" + " " + oppo.GetAttributeValue("opportunityid") + " " + oppo.GetAttributeValue("name"));
+                                logEntry.Add(string.Format("{0}", "Opportunity" + " " + oppo.GetAttributeValue("opportunityid") + " " + oppo.GetAttributeValue("name")));
                                 Progress = "Processing opportunity: " + oppo.GetAttributeValue("opportunityid") + " " + oppo.GetAttributeValue("name");
 
                                 //If not modified since marked to be closed then close opportunity - minus one min off modified date in case took a while to save
@@ -151,19 +164,17 @@ namespace NeglectedOppsCloseTool
                             catch (Exception e)
                             {
                                 updateOptyError = updateOptyError + System.Environment.NewLine + "Error with Close Neglected Opportunities: Progress='" + Progress + "'.  Error: " + e.Message;
-
                             }
-
                             
                             #endregion
                         }
                         if (updateOptyError != null && updateOptyError != "")
                         {
-                            Log(updateOptyError);
+                            //Log(updateOptyError, logTxtWriter);
+                            logEntry.Add(string.Format("{0}", updateOptyError));
                         }
                         //Close conenction to Housekeeping DB if open
-                        if (HKconn.State == System.Data.ConnectionState.Open) HKconn.Close();
-                                                  
+                        //if (HKconn.State == System.Data.ConnectionState.Open) HKconn.Close();                                                  
                     }
                     else
                     {
@@ -177,65 +188,14 @@ namespace NeglectedOppsCloseTool
             }
             catch (Exception ex)
             {
-                Log("Error with Close Neglected Opportunities: Progress='" + Progress + "'.  Error: " + ex.Message);
-
+                logEntry.Add(string.Format("{0}", "Error with Close Neglected Opportunities: Progress='" + Progress + "'.  Error: " + ex.Message));                
+                System.IO.File.WriteAllLines(fileName, logEntry);
             }
-        }
-
-        #region CRM CONNECTION
-        public static IOrganizationService CreateService(string serverUrl, string userId, string password, string domain)
-        {
-            Console.WriteLine("\n\nConnecting to CRM..........\n\n");
-
-            //objDataValidation.CreateLog("Before CRm  Creation");
-            IOrganizationService _service;
-
-            ClientCredentials Credentials = new ClientCredentials();
-            ClientCredentials devivceCredentials = new ClientCredentials();
-
-            Credentials.UserName.UserName = domain + "\\" + userId;
-            //Credentials.UserName.UserName = userId;
-            Credentials.UserName.Password = password;
-            Uri OrganizationUri = new Uri(serverUrl);
-            //Here I am using APAC.
-            Uri HomeRealmUri = null;
-            //To get device id and password.
-            //Online: For online version, we need to call this method to get device id.
-            try
+            finally
             {
-                if (!string.IsNullOrEmpty(serverUrl) && serverUrl.Contains("https"))
-                {
-                    ServicePointManager.ServerCertificateValidationCallback = delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return true; };
-                }
-                using (OrganizationServiceProxy serviceProxy = new OrganizationServiceProxy(OrganizationUri, HomeRealmUri, Credentials, devivceCredentials))
-                {
-                    //serviceProxy.ClientCredentials.UserName.UserName = userId; // Your Online username.Eg:username@yourco mpany.onmicrosoft.com";
-                    //serviceProxy.ClientCredentials.UserName.Password = password; //Your Online password
-                    serviceProxy.ServiceConfiguration.CurrentServiceEndpoint.Behaviors.Add(new ProxyTypesBehavior());
-                    serviceProxy.Timeout = new TimeSpan(0, 120, 0);
-                    _service = (IOrganizationService)serviceProxy;
-                }
-                Console.WriteLine("Connection Established!!!\n\n");
-                return _service;
+                logEntry.Add(string.Format("{0}", "End Time='" + DateTime.Now));
+                System.IO.File.WriteAllLines(fileName, logEntry);
             }
-            catch (Exception ex)
-            {
-                throw new System.Exception("<Error>Problem in creating CRM Service</Error>" + ex.Message);
-            }
-        }
-
-        #endregion
-
-        public static void Log(string logMessage)
-        {            
-            TextWriter w = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + @"CloseNeglectedOppsErrorLog.txt", true);
-
-            w.Write("\r\nLog Entry : ");
-            w.WriteLine("{0} {1}", DateTime.Now.ToLongTimeString(), DateTime.Now.ToLongDateString());           
-            w.WriteLine(":{0}", logMessage);
-            w.WriteLine("-------------------------------");
-            w.Close();
-        }
-        
+        }      
     }
 }

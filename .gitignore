@@ -35,7 +35,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 
-# Do not ignoe CRM SDK bin directory
+# Do not ignore CRM SDK bin directory
 !CRM\ SDK/[Bb]in/
 
 # Visual Studio 2015/2017 cache/options directory
@@ -350,3 +350,7 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /CRM/EarlyBindings
+/Arup CRM User Management/packages
+/Arup CRM User Management/Arup CRM User Management/obj
+/Arup CRM User Management/Arup CRM User Management/bin
+/Arup CRM User Management/Arup CRM User Management2

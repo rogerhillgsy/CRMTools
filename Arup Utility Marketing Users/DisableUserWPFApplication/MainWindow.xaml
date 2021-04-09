@@ -1,0 +1,63 @@
+﻿<Window x:Class="DisableUserWPFApplication.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DisableUserWPFApplication"
+        mc:Ignorable="d"
+        Title="Arup Application" Height="728" Width="654">
+    <Grid Margin="0,2,-2,0.4" HorizontalAlignment="Left" Width="650">
+        <Canvas Margin="0,0,0,67">
+            <Label x:Name="label" Content="CRMUrl" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="57" Canvas.Top="31"/>
+            <TextBox x:Name="txtUrl" HorizontalAlignment="Left" Height="23" Margin="180,34,0,0" TextWrapping="Wrap" Text="https://crm16-dev.arup.com/arupdev" VerticalAlignment="Top" Width="211" />
+            <CheckBox x:Name="checkBox" Content="Admin" HorizontalAlignment="Left" Margin="180,72,0,0" VerticalAlignment="Top" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked"/>
+            <TextBox x:Name="txtUser" HorizontalAlignment="Left" Height="23" Margin="180,109,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="211"/>
+            <PasswordBox x:Name="TxtPassword" HorizontalAlignment="Left" Margin="180,137,0,0" VerticalAlignment="Top" Width="211" Height="21"/>
+            <Label x:Name="label1" Content="User" HorizontalAlignment="Left" Margin="57,109,0,0" VerticalAlignment="Top" Width="65"/>
+            <Label x:Name="label2" Content="Password" HorizontalAlignment="Left" Margin="57,137,0,0" VerticalAlignment="Top" Width="65"/>
+            <Button x:Name="btnConnectCRM" Content="Connect" Canvas.Left="240" Canvas.Top="163" Width="75" Click="btnConnectCRM_Click"/>
+
+        </Canvas>
+        <TabControl x:Name="MainTabControl" Margin="0,194,0,0" Height="655" VerticalAlignment="Top">
+            <TabItem Header="" Visibility="Hidden">
+                <Canvas Height="650" VerticalAlignment="Top">
+                    <TextBox x:Name="txtUsers" HorizontalAlignment="Left" Height="226" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="211" AcceptsReturn="True" Canvas.Left="99" Canvas.Top="30"/>
+                    <Label x:Name="lblUsers" Content="Users" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.395,4.871" Canvas.Left="22" Canvas.Top="30"/>
+                    <RadioButton x:Name="radioButton" Content="Disable" HorizontalAlignment="Left" VerticalAlignment="Top" GroupName="Userstatus" IsChecked="True" Canvas.Left="221" Canvas.Top="326"/>
+                    <RadioButton x:Name="radioButton1" Content="Enable" HorizontalAlignment="Left" VerticalAlignment="Top" GroupName="Userstatus" Canvas.Left="324" Canvas.Top="326"/>
+                    <Button x:Name="button" Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="button_Click" Canvas.Left="272" Canvas.Top="367"/>
+                </Canvas>
+            </TabItem>
+            <TabItem Header="Marketing" Selector.IsSelected="True">
+                <Canvas>
+                    <Label Content="Adding Members to static Marketing list(contact)" FontWeight="Bold" FontSize="14"></Label>
+                    <StackPanel Width="428" Height="171" Canvas.Left="186" Canvas.Top="61" >
+                        <ListView x:Name="listBoxMarketingList" Height="165" Background="Azure" HorizontalAlignment="Left" Width="426">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                    <Label x:Name="label3" Content="Marketing List" Canvas.Left="22" Canvas.Top="61"/>
+                    <Label x:Name="lblContactemails" Content="Email Ids(comma seperated)" RenderTransformOrigin="0.924,14.462" Canvas.Left="22" Canvas.Top="251"/>
+                    <TextBox x:Name="txtContactEmails" HorizontalAlignment="Left" Height="150" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="426" AcceptsReturn="True" Canvas.Left="186" Canvas.Top="251"/>
+                    <Button Content="Submit" RenderTransformOrigin="5.8,19.3" Canvas.Left="257" Canvas.Top="437" Height="25" Width="77" Click="Marketing_Button_Click" />
+                </Canvas>
+            </TabItem>
+            <TabItem Header="Results"  x:Name="Resulttab">
+                <Canvas>
+                    <TextBox x:Name="txtlog" HorizontalAlignment="Left" Height="331" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="590" AcceptsReturn="True" Canvas.Left="19" Canvas.Top="30" IsEnabled="False" Background="LightGray"/>
+                    <ProgressBar x:Name="progressbar" Height="25" Width="590" Canvas.Left="19" Canvas.Top="391"/>
+                </Canvas>
+            </TabItem>
+
+
+        </TabControl>
+
+    </Grid>
+
+</Window>

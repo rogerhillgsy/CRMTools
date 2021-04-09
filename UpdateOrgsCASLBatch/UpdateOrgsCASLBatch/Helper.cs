@@ -1,21 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Client;
-using Microsoft.Xrm.Client;
-using Microsoft.Xrm.Client.Services;
 using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Crm.Sdk.Messages;
 using System.Configuration;
 using System.IO;
 using Microsoft.Xrm.Tooling.Connector;
-using System.ServiceModel.Description;
-using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.KeyVault;
 
@@ -28,6 +19,9 @@ namespace UpdateOrgsCASLBatch
         private static Task<string> _CRMHubPWTask;
 
         string IConfig.KeyVaultPath => KeyVaultPath;
+
+        static List<string> logEntry = null;
+        static string fileName = "";
 
         public static string KeyVaultPath
         {
@@ -54,71 +48,45 @@ namespace UpdateOrgsCASLBatch
         static string password = string.Empty;
         public void connectToCRM()
         {
-            _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
-            _CRMHubPWTask.Wait();
-            string environment = ConfigurationManager.AppSettings["Environment"].ToString();
-            //CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings[environment].ConnectionString);
-
-            //string userId = ConfigurationManager.AppSettings["UserId"].ToString();
-            //string pass = ConfigurationManager.AppSettings["Password"].ToString();
-            //string URL = ConfigurationManager.AppSettings["URL"].ToString();
-            //var connection = CrmConnection.Parse("Url=" + URL + "; Domain=arup.com; Username=" + userId + "; Password=" + pass + ";");
-            //OrganizationService service = new OrganizationService(crmSvc);
-
-            string serverUrl = ConfigurationManager.ConnectionStrings[environment].ConnectionString;
-            string userName = ConfigurationManager.AppSettings["UserName"].ToString();
-            //string password1 = "CIm2$98pRt";
-            string domain = ConfigurationManager.AppSettings["Domain"].ToString();
-            
-            IOrganizationService service = CreateService(serverUrl, userName, password, domain);
-
-            List<Guid> orgsForUpdate = GetOrgsForUpdate(service);
-            int count = UpdateFilteredOrgs(orgsForUpdate, service);
-            Console.WriteLine(count + " record(s) updated");
-        }
-
-        public static IOrganizationService CreateService(string serverUrl, string userId, string password, string domain)
-        {
-            
-            Console.WriteLine("\n\nConnecting to CRM..........\n\n");
-
-            //objDataValidation.CreateLog("Before CRm  Creation");
-            IOrganizationService _service;
-
-            ClientCredentials Credentials = new ClientCredentials();
-            ClientCredentials devivceCredentials = new ClientCredentials();
-
-            Credentials.UserName.UserName = domain + "\\" + userId;
-            //Credentials.UserName.UserName = userId;
-            Credentials.UserName.Password = password;
-            Uri OrganizationUri = new Uri(serverUrl);
-            //Here I am using APAC.
-            Uri HomeRealmUri = null;
-            //To get device id and password.
-            //Online: For online version, we need to call this method to get device id.
             try
             {
-                if (!string.IsNullOrEmpty(serverUrl) && serverUrl.Contains("https"))
-                {
-                    ServicePointManager.ServerCertificateValidationCallback = delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return true; };
-                }
-                using (OrganizationServiceProxy serviceProxy = new OrganizationServiceProxy(OrganizationUri, HomeRealmUri, Credentials, devivceCredentials))
-                {
-                    //serviceProxy.ClientCredentials.UserName.UserName = userId; // Your Online username.Eg:username@yourco mpany.onmicrosoft.com";
-                    //serviceProxy.ClientCredentials.UserName.Password = password; //Your Online password
-                    serviceProxy.ServiceConfiguration.CurrentServiceEndpoint.EndpointBehaviors.Add(new ProxyTypesBehavior());
-                    serviceProxy.Timeout = new TimeSpan(0, 120, 0);
-                    _service = (IOrganizationService)serviceProxy;
-                }
-                Console.WriteLine("Connection Established!!!\n\n");
-                return _service;
+                string logFilePath = ConfigurationManager.AppSettings.Get("LogFilePath");
+                fileName = logFilePath + "UpdateOrgsCASLBatch_Log_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".txt";
+                _CRMHubPWTask = GetSecretTask("CrmHub-Password", s => _CRMHubPWKey = s);
+                _CRMHubPWTask.Wait();
+                logEntry = new List<string>();
+                logEntry.Add(string.Format("{0}", "Start Time : " + DateTime.Now));
+
+                Console.WriteLine("\n\nConnecting to CRM..........\n\n");
+                logEntry.Add(string.Format("{0}", "\nConnecting to CRM..........\n"));
+                IOrganizationService service;
+                string password1 = "CIm2$98pRt";
+                string ConnectionString = ConfigurationManager.ConnectionStrings["CrmCloudConnection"].ConnectionString;
+                ConnectionString = ConnectionString.Replace("%Password%", password1);
+                var CrmService = new CrmServiceClient(ConnectionString);
+                service = CrmService.OrganizationServiceProxy;
+                Console.WriteLine("Connection Established!!!\n");
+                logEntry.Add(string.Format("{0}", "Connection Established!!!\n"));
+                List<Guid> orgsForUpdate = GetOrgsForUpdate(service);
+                int count = UpdateFilteredOrgs(orgsForUpdate, service);
+                Console.WriteLine(count + " record(s) updated");
+                logEntry.Add(string.Format("{0}", count + " record(s) updated"));
+
+                //Console.ReadLine();
             }
             catch (Exception ex)
             {
-                throw new System.Exception("<Error>Problem in creating CRM Service</Error>" + ex.Message);
+                logEntry.Add(string.Format("{0}", "Error with UpdateOrgsCASLBatch : " + ex.Message));
+                System.IO.File.WriteAllLines(fileName, logEntry);
+            }
+            finally
+            {
+                logEntry.Add(string.Format("{0}", "End Time : " + DateTime.Now));
+                System.IO.File.WriteAllLines(fileName, logEntry);
             }
         }
 
+      
         public static async Task<string> GetSecretTask(string secretName, Action<string> callback)
         {
             try
@@ -190,6 +158,7 @@ namespace UpdateOrgsCASLBatch
             {
                 EntityCollection orgsCanada = service.RetrieveMultiple(new FetchExpression(fetchXMLCanadaOrgs));
                 Console.WriteLine("\n" + orgsCanada.Entities.Count + " Orgs found for the mentioned criteria");
+                logEntry.Add(string.Format("{0}", "\n" + orgsCanada.Entities.Count + " Orgs found for the mentioned criteria"));
                 List<Organisation> orgsFetchedList = new List<Organisation>();
                 foreach (Entity item in orgsCanada.Entities)
                 {
@@ -220,8 +189,8 @@ namespace UpdateOrgsCASLBatch
             }
             catch (Exception ex)
             {
-
-                LogExceptions(ex.Message, "N/A", "GetOrgsForUpdate");
+                logEntry.Add(string.Format("{0}", "GetOrgsForUpdate : Exception : " + ex.Message));
+                //LogExceptions(ex.Message, "N/A", "GetOrgsForUpdate");
             }
             
             
@@ -249,7 +218,8 @@ namespace UpdateOrgsCASLBatch
             }
             catch (Exception ex)
             {
-                LogExceptions(ex.Message, "N/A", "GetRootForThisOrg");
+                logEntry.Add(string.Format("{0}", "GetRootForThisOrg : Exception : " + ex.Message));
+                //LogExceptions(ex.Message, "N/A", "GetRootForThisOrg");
             }
             
             return accountId;
@@ -299,7 +269,8 @@ namespace UpdateOrgsCASLBatch
                 }
                 catch (Exception ex)
                 {
-                    LogExceptions(ex.Message, id.ToString(), "UpdateFilteredOrgs");
+                    logEntry.Add(string.Format("{0}", "UpdateFilteredOrgs : Exception : " + ex.Message));
+                    //LogExceptions(ex.Message, id.ToString(), "UpdateFilteredOrgs");
                 }
             }
             return count;
