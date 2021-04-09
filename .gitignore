@@ -16,7 +16,7 @@
 *.user
 *.userosscache
 *.sln.docstates
-*.csprojAssemblyReference.cache
+**/*.csprojAssemblyReference.cache
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
