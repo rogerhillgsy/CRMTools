@@ -354,3 +354,5 @@ healthchecksdb
 /Arup CRM User Management/Arup CRM User Management/obj
 /Arup CRM User Management/Arup CRM User Management/bin
 /Arup CRM User Management/Arup CRM User Management2
+**/bin
+**/obj
