@@ -57,6 +57,16 @@
             These settings must be set before the components in the control are used for them to be effective.  
             </summary> 
         </member>
+        <member name="P:Microsoft.Xrm.Tooling.WebResourceUtility.TraceControlSettings.RegisterdTraceListeners">
+            <summary> 
+            Returns the Registered Trace Listeners in the override object.  
+            </summary> 
+        </member>
+        <member name="P:Microsoft.Xrm.Tooling.WebResourceUtility.TraceControlSettings.TraceLevel">
+            <summary> 
+            Override Trace Level setting.  
+            </summary> 
+        </member>
         <member name="M:Microsoft.Xrm.Tooling.WebResourceUtility.TraceControlSettings.#cctor">
             <summary> 
             Builds the base trace settings 
@@ -73,16 +83,6 @@
             </summary> 
             <param name="listenerToAdd">Trace Listener you wish to add</param> 
             <returns>true on success, false on fail.</returns> 
-        </member>
-        <member name="P:Microsoft.Xrm.Tooling.WebResourceUtility.TraceControlSettings.RegisterdTraceListeners">
-            <summary> 
-            Returns the Registered Trace Listeners in the override object.  
-            </summary> 
-        </member>
-        <member name="P:Microsoft.Xrm.Tooling.WebResourceUtility.TraceControlSettings.TraceLevel">
-            <summary> 
-            Override Trace Level setting.  
-            </summary> 
         </member>
         <member name="T:Microsoft.Xrm.Tooling.WebResourceUtility.ImageResources">
             <summary>
