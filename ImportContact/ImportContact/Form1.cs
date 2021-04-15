@@ -185,10 +185,10 @@ namespace ImportContact
                 AssignCountry(dtExcel, drExcel, contact, dtError, service);
             }
 
-            if (ValidateFieldNullOrEmpty("Business Interest", dtExcel, drExcel, dtError, isUpdateRequest))
-            {
-                AssignBusinessInterest(drExcel, contact, service);
-                }
+            //if (ValidateFieldNullOrEmpty("Business Interest", dtExcel, drExcel, dtError, isUpdateRequest))
+            //{
+            //    AssignBusinessInterest(drExcel, contact, service);
+            //    }
             }
             else
             {
@@ -347,41 +347,26 @@ namespace ImportContact
             string[] arrBusniessInterest = drExcel["Business Interest"].ToString().Split(',');
             if (optionSetMetatdataBusinessInterest.Options.Count <= 0)
             {
-                optionSetMetatdataBusinessInterest = GetOptionSetMetaData(service, "contact", "ccrm_businessinterest");
+                optionSetMetatdataBusinessInterest = GetOptionSetMetaData(service, "contact", "arup_businessinterest_ms");
             }
 
-            int optionSetValueBusinessInterest = 0;
-            string picklistNameBusinessInterest = string.Empty;
-            string picklistValueBusinessInterest = string.Empty;
-
-            int counter = 0;
+            OptionSetValueCollection collectionOptionSetValues = new OptionSetValueCollection();
+            //  int counter = 0;
             foreach (string item in arrBusniessInterest)
             {
-                counter++;
+                // counter++;
                 var optionSetValue = (from o in optionSetMetatdataBusinessInterest.Options
-                                      where o.Label.UserLocalizedLabel.Label.ToLower() == item.ToLower()
+                                      where o.Label.UserLocalizedLabel.Label.ToLower() == item.ToLower().Trim()
                                       select o.Value).FirstOrDefault();
 
-                if (counter == 1)
-                {
-                    optionSetValueBusinessInterest = Convert.ToInt32(optionSetValue);
-                    picklistNameBusinessInterest = item;
-                    picklistValueBusinessInterest = optionSetValue.ToString();
-                }
-                else
-                {
-                    picklistNameBusinessInterest = string.Concat(picklistNameBusinessInterest, ",", item);
-                    picklistValueBusinessInterest = string.Concat(picklistValueBusinessInterest, ",", optionSetValue.ToString());
-                }
+
+                collectionOptionSetValues.Add(new OptionSetValue(Convert.ToInt32(optionSetValue)));
             }
 
-            if (optionSetValueBusinessInterest > 0)
-            {
-                contact["ccrm_businessinterest"] = new OptionSetValue(Convert.ToInt32(optionSetValueBusinessInterest));
-            }
-            contact["ccrm_businessinterestpicklistname"] = picklistNameBusinessInterest;
-            contact["ccrm_businessinterestpicklistvalue"] = picklistValueBusinessInterest;
+            contact["arup_businessinterest_ms"] = collectionOptionSetValues;
+
         }
+
         public void OptionalFieldValidationAndAssignment(IOrganizationService service, DataTable dtExcel, DataRow drExcel, Entity contact,DataTable dtError)
         {
             if (dtExcel.Columns.Contains("Title") && !string.IsNullOrEmpty(drExcel["Title"].ToString()))
@@ -435,6 +420,8 @@ namespace ImportContact
             if (dtExcel.Columns.Contains("Sync To Marketo") && !string.IsNullOrEmpty(drExcel["Sync To Marketo"].ToString()))
                 contact["arup_synctomkto"] = drExcel["Sync To Marketo"].ToString().ToUpper() == "YES".ToString().ToUpper() ? true : false;
 
+            if (dtExcel.Columns.Contains("Business Interest") && !string.IsNullOrEmpty(drExcel["Business Interest"].ToString()))
+                AssignBusinessInterest(drExcel, contact, service);
         }
         public OptionSetMetadata GetOptionSetMetaData(IOrganizationService service, string entityLogicalName, string optionSetAttributeName)
         {
