@@ -339,7 +339,7 @@ namespace ImportContact
             }
             else
             {
-                PopulateErrorTable(drExcel["Email Address"].ToString(), "Country", string.Format("Country {0} doesn't exist. Please provide valid country name", drExcel["Organisation name"].ToString()), dtError);
+                PopulateErrorTable(drExcel["Email Address"].ToString(), "Country", string.Format("Country {0} doesn't exist. Please provide valid country name", drExcel["Country"].ToString()), dtError);
             }
         }
         public void AssignBusinessInterest(DataRow drExcel, Entity contact, IOrganizationService service)
